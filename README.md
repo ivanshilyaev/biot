@@ -24,6 +24,12 @@
 
 ## Безопасность
 
+[Security Analysis of Zigbee](https://courses.csail.mit.edu/6.857/2017/project/17.pdf)
+
+[IoT Device (Zigbee) Security Study](https://www.hkcert.org/f/blog/264453/3a1c8eed-012c-4b59-9d9e-971001d66c77-DLFE-14602.pdf)
+
+[A Formal Security Analysis of Zigbee (1.0 and 3.0)](https://cps-vo.org/node/66418)
+
 [Security Evaluation of the Z-Wave Wireless Protocol](https://sensepost.com/cms/resources/conferences/2013/bh_zwave/Security%20Evaluation%20of%20Z-Wave_WP.pdf)
 
 ## Атаки
