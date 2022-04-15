@@ -1,13 +1,13 @@
 #include <Arduino.h>
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(921600);
+  Serial.begin(115200);
+  pinMode(D1, OUTPUT);
 }
 
 void loop() {
+  digitalWrite(D1, LOW);
   delay(1000);
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(D1, HIGH);
   delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
 }
