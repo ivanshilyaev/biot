@@ -113,6 +113,7 @@ void loop() {
 button — D5, diode — D1.
 
 ![diode with button on](../images/diode_with_button_on.png)
+
 ![diode with button off](../images/diode_with_button_off.png)
 
 ```cpp
@@ -152,3 +153,13 @@ void loop() {
   }
 }
 ```
+
+### Connect to Wi-Fi
+
+Control LED (switch on & off) over Wi-Fi.
+
+Todo on this task:
+
+- [ ]  Store wi-fi credentials in properties
+- [ ]  Use WebSerial as Remote Serial Monitor (for debugging purposes)
+- [ ]  Rewrite web server (maybe even on Java) to control LED
