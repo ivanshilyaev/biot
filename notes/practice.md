@@ -24,7 +24,7 @@
 
 ### Solution
 
-Купить плату (пр. ESP32). (в качестве управляющего устройства (хаба) будет комп; при большом желании и наличии времени можно будет сделать raspberry). Кабель для платы, чтобы её запрограммировать (прошивать). К плате можно подключить датчик (освещённости, увлажнения или что-то ещё; в идеале лампочку).
+Купить плату (пр. ESP32). (в качестве управляющего устройства (хаба) будет компьютер; при большом желании и наличии времени можно будет сделать raspberry). Кабель для платы, чтобы её запрограммировать (прошивать). К плате можно подключить датчик (освещённости, увлажнения или что-то ещё; в идеале лампочку).
 
 1. Продумать, как будет осуществляться соединения платы с управляющим устройством (компьютером, хабом и т.д.)
 2. Если это bluetooth (например), то он должен работать как обычно, а внутри наша криптография (на оборачивать сам bluetooth в наши алгоритмы)
@@ -63,3 +63,92 @@ ESP32:
 Использование C#:
 
 [.NET nanoFramework - Making it easy to write C# code for embedded systems.](https://www.nanoframework.net/)
+
+### First step
+
+```cpp
+#include <Arduino.h>
+
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(921600);
+}
+
+void loop() {
+  delay(1000);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+}
+```
+
+### Diode blinking
+
+- Макетная плата (breadboard)
+- Диод: длинная ножка (+, анод), короткая ножка (-, катод)
+- Диод подключается через токоограничивающий резистор
+
+Схема: D1 к аноду, G (grand) к катоду.
+
+![diode blinking](../images/diode_blinking.png)
+
+```cpp
+#include <Arduino.h>
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(D1, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(D1, LOW);
+  delay(1000);
+  digitalWrite(D1, HIGH);
+  delay(1000);
+}
+```
+
+### Control diode with the button (turning on and off)
+
+button — D5, diode — D1.
+
+![diode with button on](../images/diode_with_button_on.png)
+![diode with button off](../images/diode_with_button_off.png)
+
+```cpp
+#include <Arduino.h>
+
+byte lastButtonState;
+byte ledState = LOW;
+
+unsigned long lastTimeButtonStateChanged = millis();
+unsigned long debounceDuration = 50; // millis
+
+// D1 = LED_PIN
+// D5 = BUTTON_PIN
+
+void setup() {
+  pinMode(D1, OUTPUT);
+  pinMode(D5, INPUT_PULLUP);
+  lastButtonState = digitalRead(D5);
+}
+
+void loop() {
+  if (millis() - lastTimeButtonStateChanged >= debounceDuration) {
+    byte buttonState = digitalRead(D5);
+    if (buttonState != lastButtonState) {
+      lastTimeButtonStateChanged = millis();
+      lastButtonState = buttonState;
+      if (buttonState == LOW) {
+        if (ledState == HIGH) {
+          ledState = LOW;
+        }
+        else {
+          ledState = HIGH;
+        }
+        digitalWrite(D1, ledState);
+      }
+    }
+  }
+}
+```

@@ -1,13 +1,35 @@
 #include <Arduino.h>
 
+byte lastButtonState;
+byte ledState = LOW;
+
+unsigned long lastTimeButtonStateChanged = millis();
+unsigned long debounceDuration = 50; // millis
+
+// D1 = LED_PIN
+// D5 = BUTTON_PIN
+
 void setup() {
-  Serial.begin(115200);
   pinMode(D1, OUTPUT);
+  pinMode(D5, INPUT_PULLUP);
+  lastButtonState = digitalRead(D5);
 }
 
 void loop() {
-  digitalWrite(D1, LOW);
-  delay(1000);
-  digitalWrite(D1, HIGH);
-  delay(1000);
+  if (millis() - lastTimeButtonStateChanged >= debounceDuration) {
+    byte buttonState = digitalRead(D5);
+    if (buttonState != lastButtonState) {
+      lastTimeButtonStateChanged = millis();
+      lastButtonState = buttonState;
+      if (buttonState == LOW) {
+        if (ledState == HIGH) {
+          ledState = LOW;
+        }
+        else {
+          ledState = HIGH;
+        }
+        digitalWrite(D1, ledState);
+      }
+    }
+  }
 }
