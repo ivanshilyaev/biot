@@ -1,17 +1,31 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <secrets.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <WebSerial.h>
 
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
-
-int ledPin = D1;
+int LED = D1;
 WiFiServer server(80);
+AsyncWebServer server(81);
+
+/* Message callback of WebSerial */
+void recieveMessage(uint8_t *data, size_t len){
+  WebSerial.println("Received Data...");
+  String d = "";
+  for(int i=0; i < len; i++){
+    d += char(data[i]);
+  }
+  WebSerial.println(d);
+}
 
 void setup() {
   Serial.begin(115200);
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
 
+  // Set up WebSerial
+  WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -39,11 +53,11 @@ void loop() {
 
   int value = LOW;
   if (request.indexOf("/LED=ON") != -1) {
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(LED, HIGH);
     value = HIGH;
   }
   if (request.indexOf("/LED=OFF") != -1) {
-    digitalWrite(ledPin, LOW);
+    digitalWrite(LED, LOW);
     value = LOW;
   }
 
