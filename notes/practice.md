@@ -163,3 +163,55 @@ Todo on this task:
 - [ ]  Store wi-fi credentials in properties
 - [ ]  Use WebSerial as Remote Serial Monitor (for debugging purposes)
 - [ ]  Rewrite web server (maybe even on Java) to control LED
+
+### Steps to run C code in Java
+
+1. Create Java file with native method
+
+```java
+class LibraryNative {
+    public static native void greetings();
+}
+```
+
+2. Compile the file with -h option. LibraryNative.h file will be generated
+
+```bash
+javac LibraryNative.java -h .
+```
+
+3. Create file LibraryNative.c. Be careful with method signature
+
+```c
+#include <jni.h>
+#include <stdio.h>
+#include "LibraryNative.h"
+
+JNIEXPORT void JNICALL Java_LibraryNative_greetings(JNIEnv *env, jclass thisClass) {
+    printf("Hello Native!\n");
+    return;
+}
+```
+
+4. Compile C file to .dylib
+
+```bash
+gcc -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/darwin" -dynamiclib -o libLibraryNative.dylib LibraryNative.c
+```
+
+5. Run the main class
+
+```java
+public class Runner {
+
+    static {
+        System.loadLibrary("LibraryNative");
+    }
+
+    public static void main(String[] args) {
+        LibraryNative.greetings();
+    }
+}
+```
+
+[More on this here](https://www3.ntu.edu.sg/home/ehchua/programming/java/javanativeinterface.html)
