@@ -215,3 +215,14 @@ public class Runner {
 ```
 
 [More on this here](https://www3.ntu.edu.sg/home/ehchua/programming/java/javanativeinterface.html)
+
+### Run bash_f C function in Java
+
+Example:
+![Example](../images/bash_f_test_example.png)
+
+Input:
+![Input](../images/bash_f_test_input.png)
+
+Output:
+![Output](../images/bash_f_test_output.png)

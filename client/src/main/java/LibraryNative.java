@@ -1,3 +1,3 @@
 class LibraryNative {
-    public static native void greetings();
+    public static native byte[] bash_f(byte[] array);
 }
