@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Runner {
 
     static {
@@ -12,18 +10,18 @@ public class Runner {
     };
 
     /**
-     * Convert bytes to a base16 string.
+     * Convert bytes to a base16 string
      */
     public static String encode(byte[] byteArray) {
-        StringBuffer hexBuffer = new StringBuffer(byteArray.length * 2);
-        for (int i = 0; i < byteArray.length; i++)
+        StringBuilder hexBuffer = new StringBuilder(byteArray.length * 2);
+        for (byte b : byteArray)
             for (int j = 1; j >= 0; j--)
-                hexBuffer.append(HEX[(byteArray[i] >> (j * 4)) & 0xF]);
+                hexBuffer.append(HEX[(b >> (j * 4)) & 0xF]);
         return hexBuffer.toString();
     }
 
     /**
-     * Convert a base16 string into a byte array.
+     * Convert a base16 string into a byte array
      */
     public static byte[] decode(String s) {
         int len = s.length();
