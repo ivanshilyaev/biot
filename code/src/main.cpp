@@ -3,7 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include <secrets.h>
 
-int LED = D1;
+int LED = LED_BUILTIN; // D1
 AsyncWebServer server(80);
 
 const char* PARAM_INPUT = "state";
