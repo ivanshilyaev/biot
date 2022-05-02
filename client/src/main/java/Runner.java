@@ -1,3 +1,5 @@
+import java.nio.charset.StandardCharsets;
+
 public class Runner {
 
     static {
@@ -8,5 +10,6 @@ public class Runner {
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService();
         service.start();
         service.commit(AutomateDataTypes.NULL.code);
+        service.absorb("on".getBytes(StandardCharsets.UTF_8));
     }
 }

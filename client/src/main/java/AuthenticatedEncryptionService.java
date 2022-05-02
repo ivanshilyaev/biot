@@ -66,4 +66,22 @@ public class AuthenticatedEncryptionService {
         // 4.
         pos = 0;
     }
+
+    public void absorb(byte[] X) {
+        // 1.
+        commit(AutomateDataTypes.DATA.code);
+        // 2-3.
+        if (X.length <= r) {
+            pos = X.length;
+            for (int i = 0; i < pos; ++i) {
+                S[i] = (byte) (S[i] ^ X[i]);
+            }
+            S = LibraryNative.bash_f(S);
+            pos = 0;
+        }
+        else {
+            // Только в случае, если входное слово по длине больше 168 байт
+            // Имплементировать позже
+        }
+    }
 }
