@@ -84,4 +84,21 @@ public class AuthenticatedEncryptionService {
             // Имплементировать позже
         }
     }
+
+    // на вход подаётся длина в байтах
+    public byte[] squeeze(int n) {
+        // 1.
+        commit(AutomateDataTypes.OUT.code);
+        // 2.
+        byte[] Y = new byte[n];
+        // 3.
+        // Только в случае, если выходное слово по длине больше 168 байт
+        // Имплементировать позже
+        // 4.
+        pos = n * 8;
+        // 5.
+        System.arraycopy(S, 0, Y, 0, n);
+        // 6.
+        return Y;
+    }
 }
