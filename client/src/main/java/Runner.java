@@ -1,4 +1,5 @@
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class Runner {
 
@@ -11,5 +12,7 @@ public class Runner {
         service.start();
         service.commit(AutomateDataTypes.NULL.code);
         service.absorb("on".getBytes(StandardCharsets.UTF_8));
+        service.squeeze(2);
+        service.encrypt("on".getBytes(StandardCharsets.UTF_8));
     }
 }
