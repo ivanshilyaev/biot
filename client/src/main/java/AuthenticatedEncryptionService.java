@@ -1,5 +1,3 @@
-package encryption;
-
 import utils.HexEncoder;
 
 public class AuthenticatedEncryptionService {
@@ -34,9 +32,9 @@ public class AuthenticatedEncryptionService {
         else {
             r = N - 2 * d * l;
         }
-        // 3. pos <- 8 + |ann| + |key|
+        // 3.
         pos = 8 * (1 + A.length + K.length);
-        // 4. s[0..pos) <- <|ann|/2 + |key|/32>_8 || ann || key
+        // 4.
         int U = (int) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
         S[0] = (byte) (U - 128);
         System.arraycopy(A, 0, S, 1, A.length);
@@ -51,5 +49,21 @@ public class AuthenticatedEncryptionService {
             S[i] = 0;
         }
         S[nBytes - 1] = (byte) (U - 128);
+    }
+
+    public void commit(String t) {
+        // 1.
+        S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(t + "01", 2));
+        // 2.
+        byte temp = S[r / 8];
+        if (temp % 2 == 0) {
+            S[r / 8]++;
+        } else {
+            S[r / 8]--;
+        }
+        // 3.
+        S = LibraryNative.bash_f(S);
+        // 4.
+        pos = 0;
     }
 }
