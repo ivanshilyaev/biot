@@ -124,4 +124,27 @@ public class AuthenticatedEncryptionService {
         // 5.
         return Y;
     }
+
+    public byte[] decrypt(byte[] Y) {
+        // 1.
+        commit(AutomateDataTypes.TEXT.code);
+        // 3.
+        byte[] X = new byte[Y.length];
+        // 2-4.
+        if (Y.length <= r) {
+            pos = Y.length;
+            for (int i = 0; i < pos; ++i) {
+                X[i] = (byte) (S[i] ^ Y[i]);
+                S[i] = Y[i];
+            }
+            S = LibraryNative.bash_f(S);
+            pos = 0;
+        }
+        else {
+            // Только в случае, если входное слово по длине больше 168 байт
+            // Имплементировать позже
+        }
+        // 5.
+        return X;
+    }
 }
