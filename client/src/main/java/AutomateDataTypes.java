@@ -1,9 +1,9 @@
 public enum AutomateDataTypes {
-    NULL("000000"),
-    KEY("000001"),
-    DATA("000010"),
-    TEXT("000011"),
-    OUT("000100");
+    NULL("00000001"),
+    KEY("00000101"),
+    DATA("00001001"),
+    TEXT("00001101"),
+    OUT("00010001");
 
     public final String code;
 

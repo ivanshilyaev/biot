@@ -6,23 +6,24 @@ public class AuthenticatedEncryptionService {
     private static final int nBytes = 192;
 
     // уровень стойкости
-    private static int l;
+    private int l;
 
     // ёмкость
-    private static int d;
+    private int d;
 
     // анонс, 16 base
-    private static byte[] A;
+    private byte[] A;
 
     // ключ, 16 base
-    private static byte[] K;
+    private byte[] K;
 
-    private static byte[] S = new byte[nBytes];
+    private byte[] S = new byte[nBytes];
 
-    private static int r;
+    private int r;
 
-    private static int pos;
+    private int pos;
 
+    // ✅
     public void start(int ll, int dd, byte[] Aa, byte[] Kk) {
         l = ll;
         d = dd;
@@ -40,8 +41,8 @@ public class AuthenticatedEncryptionService {
         pos = 8 * (1 + A.length + K.length);
         // 4.
         int U = (int) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
-        U = ~U & 0xff; // ?
-        S[0] = (byte) (U - 128);
+        // U = ~U & 0xff;
+        S[0] = (byte) (U);
         System.arraycopy(A, 0, S, 1, A.length);
         System.arraycopy(K, 0, S, 1 + A.length, K.length);
         // 5.
@@ -50,23 +51,19 @@ public class AuthenticatedEncryptionService {
         }
         // 6.
         U = (int) ((l / 4 + d) % (Math.pow(2, 64)));
-        U = ~U & 0xff; // ?
-        for (int i = 1472 / 8; i < nBytes - 1; ++i) {
+        // U = ~U & 0xff; // ?
+        S[1472 / 8] = (byte) (U);
+        for (int i = 1472 / 8 + 1; i < nBytes; ++i) {
             S[i] = 0;
         }
-        S[nBytes - 1] = (byte) (U - 128);
     }
 
-    public void commit(String t) {
+    // ✅
+    public void commit(AutomateDataTypes type) {
         // 1.
-        S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(t + "01", 2));
+        S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(type.code, 2));
         // 2.
-        byte temp = S[r / 8];
-        if (temp % 2 == 0) {
-            S[r / 8]++;
-        } else {
-            S[r / 8]--;
-        }
+        S[r / 8] = (byte) (S[r / 8] ^ 128); // 1000 0000
         // 3.
         S = LibraryNative.bash_f(S);
         // 4.
@@ -75,7 +72,7 @@ public class AuthenticatedEncryptionService {
 
     public void absorb(byte[] X) {
         // 1.
-        commit(AutomateDataTypes.DATA.code);
+        commit(AutomateDataTypes.DATA);
         // 2-3.
         if (X.length <= r / 8) {
             pos = 8 * X.length;
@@ -92,7 +89,7 @@ public class AuthenticatedEncryptionService {
     // на вход подаётся длина в байтах
     public byte[] squeeze(int n) {
         // 1.
-        commit(AutomateDataTypes.OUT.code);
+        commit(AutomateDataTypes.OUT);
         // 2.
         byte[] Y = new byte[n];
         // 3.
@@ -108,7 +105,7 @@ public class AuthenticatedEncryptionService {
 
     public byte[] encrypt(byte[] X) {
         // 1.
-        commit(AutomateDataTypes.TEXT.code);
+        commit(AutomateDataTypes.TEXT);
         // 3.
         byte[] Y = new byte[X.length];
         // 2-4.
@@ -120,6 +117,9 @@ public class AuthenticatedEncryptionService {
             System.arraycopy(S, 0, Y, 0, X.length);
         }
         else {
+            // r = 1152
+            // TODO: реализовать до конца
+
             // Только в случае, если входное слово по длине больше 168 байт
             // Имплементировать позже
         }
@@ -129,7 +129,7 @@ public class AuthenticatedEncryptionService {
 
     public byte[] decrypt(byte[] Y) {
         // 1.
-        commit(AutomateDataTypes.TEXT.code);
+        commit(AutomateDataTypes.TEXT);
         // 3.
         byte[] X = new byte[Y.length];
         // 2-4.
@@ -153,7 +153,8 @@ public class AuthenticatedEncryptionService {
         start(l, d, A, K);
         // 2.
         absorb(I);
-        return encrypt(X);
+        byte[] Y = encrypt(X);
+        return Y;
     }
 
     public byte[] authDecrypt(int l, int d, byte[] A, byte[] K, byte[] I, byte[] Y) {
