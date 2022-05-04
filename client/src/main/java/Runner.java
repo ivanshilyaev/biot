@@ -1,5 +1,3 @@
-import java.util.List;
-
 import static utils.ByteArrayUtils.*;
 import static utils.HexEncoder.*;
 
@@ -30,17 +28,17 @@ public class Runner {
                 swapAndDecode("F7C6F860D5BB9C4F"),
                 swapAndDecode("F33C657B637C306A"),
                 swapAndDecode("DD4EA7799EB23D31"),
-                swapAndDecode("3E00000000000000")
+                //swapAndDecode("3E00000000000000")
+                swapAndDecode("3E")
         );
 
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService();
         byte[] Y = service.authEncrypt(l, d, A, K, I, X);
         String yString = encode(Y);
-        List<String> yStringList = splitAndSwap(yString);
 
-        for (int i = 0; i < 24; ++i) {
-            System.out.print(yStringList.get(i) + " ");
-            if (i % 4 == 3) {
+        for (int i = 0; i < 384; i += 16) {
+            System.out.print(yString.substring(i, i + 16) + " ");
+            if ((i + 16) % 64 == 0) {
                 System.out.println();
             }
         }

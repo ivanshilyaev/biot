@@ -1,4 +1,7 @@
-import utils.HexEncoder;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuthenticatedEncryptionService {
 
@@ -70,19 +73,40 @@ public class AuthenticatedEncryptionService {
         pos = 0;
     }
 
+    private byte[][] split(byte[] X) {
+        if (X.length * 8 <= r) {
+            return new byte[][] {X};
+        }
+        List<byte[]> result = new ArrayList<>();
+        int tempPos = 0;
+        while (tempPos * 8 + r < X.length * 8) {
+            result.add(ArrayUtils.subarray(X, tempPos, tempPos + r / 8));
+            tempPos += r / 8;
+        }
+        result.add(ArrayUtils.subarray(X, tempPos, X.length));
+
+        return result.toArray(new byte[0][]);
+    }
+
+    // ✅
     public void absorb(byte[] X) {
         // 1.
         commit(AutomateDataTypes.DATA);
-        // 2-3.
-        if (X.length <= r / 8) {
-            pos = 8 * X.length;
+        // 2.
+        byte[][] XSplit = split(X);
+        // 3.
+        for (byte[] Xi : XSplit) {
+            // 3.1
+            pos = Xi.length * 8;
+            // 3.2
             for (int i = 0; i < pos / 8; ++i) {
-                S[i] = (byte) (S[i] ^ X[i]);
+                S[i] = (byte) (S[i] ^ Xi[i]);
             }
-        }
-        else {
-            // Только в случае, если входное слово по длине больше 168 байт
-            // Имплементировать позже
+            // 3.3
+            if (pos == r) {
+                S = LibraryNative.bash_f(S);
+                pos = 0;
+            }
         }
     }
 
@@ -103,25 +127,29 @@ public class AuthenticatedEncryptionService {
         return Y;
     }
 
+    // ✅
     public byte[] encrypt(byte[] X) {
         // 1.
         commit(AutomateDataTypes.TEXT);
+        // 2.
+        byte[][] XSplit = split(X);
         // 3.
-        byte[] Y = new byte[X.length];
-        // 2-4.
-        if (X.length <= r) {
-            pos = 8 * X.length;
+        byte[] Y = new byte[0];
+        // 4.
+        for (byte[] Xi : XSplit) {
+            // 4.1
+            pos = Xi.length * 8;
+            // 4.2
             for (int i = 0; i < pos / 8; ++i) {
-                S[i] = (byte) (S[i] ^ X[i]);
+                S[i] = (byte) (S[i] ^ Xi[i]);
             }
-            System.arraycopy(S, 0, Y, 0, X.length);
-        }
-        else {
-            // r = 1152
-            // TODO: реализовать до конца
-
-            // Только в случае, если входное слово по длине больше 168 байт
-            // Имплементировать позже
+            // 4.3
+            Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos / 8));
+            // 4.4
+            if (pos == r) {
+                S = LibraryNative.bash_f(S);
+                pos = 0;
+            }
         }
         // 5.
         return Y;
