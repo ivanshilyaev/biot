@@ -1,3 +1,5 @@
+import dto.EncryptionResult;
+
 import static utils.ByteArrayUtils.*;
 import static utils.HexEncoder.*;
 
@@ -33,14 +35,40 @@ public class Runner {
         );
 
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService();
-        byte[] Y = service.authEncrypt(l, d, A, K, I, X);
-        String yString = encode(Y);
+        EncryptionResult encryptionResult = service.authEncrypt(l, d, A, K, I, X);
 
+        String yString = encode(encryptionResult.getY());
         for (int i = 0; i < 384; i += 16) {
             System.out.print(yString.substring(i, i + 16) + " ");
             if ((i + 16) % 64 == 0) {
                 System.out.println();
             }
+        }
+        System.out.println();
+
+        String tString = encode(encryptionResult.getT());
+        for (int i = 0; i < 64; i += 16) {
+            System.out.print(tString.substring(i, i + 16) + " ");
+            if ((i + 16) % 64 == 0) {
+                System.out.println();
+            }
+        }
+        System.out.println();
+
+
+        byte[] XDecrypted = service.authDecrypt(l, d, A, K, I, encryptionResult.getY(), encryptionResult.getT());
+        if (XDecrypted == null) {
+            System.out.println("Decryption error");
+        }
+        else {
+            String xString = encode(XDecrypted);
+            for (int i = 0; i < 384; i += 16) {
+                System.out.print(xString.substring(i, i + 16) + " ");
+                if ((i + 16) % 64 == 0) {
+                    System.out.println();
+                }
+            }
+            System.out.println();
         }
     }
 }
