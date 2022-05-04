@@ -1,4 +1,4 @@
-public enum AutomateDataTypes {
+public enum MachineDataType {
     NULL("00000001"),
     KEY("00000101"),
     DATA("00001001"),
@@ -7,7 +7,7 @@ public enum AutomateDataTypes {
 
     public final String code;
 
-    AutomateDataTypes(String code) {
+    MachineDataType(String code) {
         this.code = code;
     }
 }

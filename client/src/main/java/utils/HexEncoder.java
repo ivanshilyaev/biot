@@ -10,7 +10,7 @@ public class HexEncoder {
     };
 
     /**
-     * Convert bytes to a base16 string
+     * Convert a byte array into a base16 string
      */
     public static String encode(byte[] byteArray) {
         StringBuilder hexBuffer = new StringBuilder(byteArray.length * 2);
@@ -42,7 +42,10 @@ public class HexEncoder {
         return r;
     }
 
-    public static byte[] swapAndDecode(String s) {
+    /**
+     * Reverse string by 8-bit blocks and decode
+     */
+    public static byte[] reverseAndDecode(String s) {
         StringBuilder eightBitReversed = new StringBuilder();
         for (int i = s.length() - 1; i >= 0; i -= 2) {
             eightBitReversed.append(s, i - 1, i + 1);

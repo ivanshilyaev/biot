@@ -8,33 +8,32 @@ import java.util.List;
 public class AuthenticatedEncryptionService {
 
     private static final int N = 1536;
-    private static final int nBytes = 192;
+    private static final int N_BYTES = 192;
 
     // уровень стойкости
-    private int l;
+    private final int l;
 
     // ёмкость
-    private int d;
+    private final int d;
 
-    // анонс, 16 base
-    private byte[] A;
-
-    // ключ, 16 base
-    private byte[] K;
-
-    private byte[] S = new byte[nBytes];
-
+    // длина буфера
     private int r;
 
+    // текущее смещение в буфере
     private int pos;
 
-    public void start(int ll, int dd, byte[] Aa, byte[] Kk) {
-        l = ll;
-        d = dd;
-        A = Aa;
-        K = Kk;
+    // состояние автомата
+    private byte[] S;
+
+    public AuthenticatedEncryptionService(int l, int d) {
+        this.l = l;
+        this.d = d;
+        S = new byte[N_BYTES];
+    }
+
+    private void start(byte[] A, byte[] K) {
         // 1.
-        if (K != null) {
+        if (K.length != 0) {
             r = N - l - d * l / 2;
         }
         // 2.
@@ -44,8 +43,7 @@ public class AuthenticatedEncryptionService {
         // 3.
         pos = 8 * (1 + A.length + K.length);
         // 4.
-        int U = (int) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
-        S[0] = (byte) (U);
+        S[0] = (byte) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
         System.arraycopy(A, 0, S, 1, A.length);
         System.arraycopy(K, 0, S, 1 + A.length, K.length);
         // 5.
@@ -53,14 +51,13 @@ public class AuthenticatedEncryptionService {
             S[i] = 0;
         }
         // 6.
-        U = (int) ((l / 4 + d) % (Math.pow(2, 64)));
-        S[1472 / 8] = (byte) (U);
-        for (int i = 1472 / 8 + 1; i < nBytes; ++i) {
+        S[1472 / 8] = (byte) ((l / 4 + d) % (Math.pow(2, 64)));
+        for (int i = 1472 / 8 + 1; i < N_BYTES; ++i) {
             S[i] = 0;
         }
     }
 
-    public void commit(AutomateDataTypes type) {
+    private void commit(MachineDataType type) {
         // 1.
         S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(type.code, 2));
         // 2.
@@ -71,26 +68,11 @@ public class AuthenticatedEncryptionService {
         pos = 0;
     }
 
-    private byte[][] split(byte[] X) {
-        if (X.length * 8 <= r) {
-            return new byte[][] {X};
-        }
-        List<byte[]> result = new ArrayList<>();
-        int tempPos = 0;
-        while (tempPos * 8 + r < X.length * 8) {
-            result.add(ArrayUtils.subarray(X, tempPos, tempPos + r / 8));
-            tempPos += r / 8;
-        }
-        result.add(ArrayUtils.subarray(X, tempPos, X.length));
-
-        return result.toArray(new byte[0][]);
-    }
-
-    public void absorb(byte[] X) {
+    private void absorb(byte[] X) {
         // 1.
-        commit(AutomateDataTypes.DATA);
+        commit(MachineDataType.DATA);
         // 2.
-        byte[][] XSplit = split(X);
+        byte[][] XSplit = split(X, r);
         // 3.
         for (byte[] Xi : XSplit) {
             // 3.1
@@ -107,9 +89,9 @@ public class AuthenticatedEncryptionService {
         }
     }
 
-    public byte[] squeeze(int n) {
+    private byte[] squeeze(int n) {
         // 1.
-        commit(AutomateDataTypes.OUT);
+        commit(MachineDataType.OUT);
         // 2.
         byte[] Y = new byte[0];
         // 3.
@@ -127,11 +109,11 @@ public class AuthenticatedEncryptionService {
         return Y;
     }
 
-    public byte[] encrypt(byte[] X) {
+    private byte[] encrypt(byte[] X) {
         // 1.
-        commit(AutomateDataTypes.TEXT);
+        commit(MachineDataType.TEXT);
         // 2.
-        byte[][] XSplit = split(X);
+        byte[][] XSplit = split(X, r);
         // 3.
         byte[] Y = new byte[0];
         // 4.
@@ -154,11 +136,11 @@ public class AuthenticatedEncryptionService {
         return Y;
     }
 
-    public byte[] decrypt(byte[] Y) {
+    private byte[] decrypt(byte[] Y) {
         // 1.
-        commit(AutomateDataTypes.TEXT);
+        commit(MachineDataType.TEXT);
         // 2.
-        byte[][] YSplit = split(Y);
+        byte[][] YSplit = split(Y, r);
         // 3.
         byte[] X = new byte[0];
         // 4.
@@ -183,9 +165,16 @@ public class AuthenticatedEncryptionService {
         return X;
     }
 
-    public EncryptionResult authEncrypt(int l, int d, byte[] A, byte[] K, byte[] I, byte[] X) {
+    /**
+     * @param A - анонс
+     * @param K - ключ
+     * @param I - ассоциированные данные
+     * @param X - сообщение
+     * @return зашифрованное сообщение Y и имитовставка T
+     */
+    public EncryptionResult authEncrypt(byte[] A, byte[] K, byte[] I, byte[] X) {
         // 1.
-        start(l, d, A, K);
+        start(A, K);
         // 2.1
         absorb(I);
         // 2.2
@@ -199,9 +188,17 @@ public class AuthenticatedEncryptionService {
                 .build();
     }
 
-    public byte[] authDecrypt(int l, int d, byte[] A, byte[] K, byte[] I, byte[] Y, byte[] T) {
+    /**
+     * @param A - анонс
+     * @param K - ключ
+     * @param I - ассоциированные данные
+     * @param Y - зашифрованное сообщение
+     * @param T - имитовставка
+     * @return расшифрованное сообщение X
+     */
+    public byte[] authDecrypt(byte[] A, byte[] K, byte[] I, byte[] Y, byte[] T) {
         // 1.
-        start(l, d, A, K);
+        start(A, K);
         // 2.1
         absorb(I);
         // 2.2
@@ -211,5 +208,20 @@ public class AuthenticatedEncryptionService {
             return null;
         }
         return X;
+    }
+
+    private static byte[][] split(byte[] bytes, int r) {
+        if (bytes.length * 8 <= r) {
+            return new byte[][]{bytes};
+        }
+        List<byte[]> result = new ArrayList<>();
+        int tempPos = 0;
+        while (tempPos * 8 + r < bytes.length * 8) {
+            result.add(ArrayUtils.subarray(bytes, tempPos, tempPos + r / 8));
+            tempPos += r / 8;
+        }
+        result.add(ArrayUtils.subarray(bytes, tempPos, bytes.length));
+
+        return result.toArray(new byte[0][]);
     }
 }
