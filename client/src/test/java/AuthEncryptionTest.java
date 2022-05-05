@@ -78,7 +78,7 @@ public class AuthEncryptionTest {
                 reverseAndDecode("5CB0C0FF33C356B8"),
                 reverseAndDecode("35C405AED8E07F99")
         );
-        String xString = "on";
+        String xString = "off";
         byte[] X = xString.getBytes(StandardCharsets.UTF_8);
         byte[] I = concatenate(
                 reverseAndDecode("E12BDC1AE28257EC"),
@@ -92,6 +92,15 @@ public class AuthEncryptionTest {
 
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService(l, d);
         EncryptionResult encryptionResult = service.authEncrypt(A, K, I, X);
+
+        //
+        System.out.println(encode(xString.getBytes()));
+        String yString = encode(encryptionResult.getY());
+        System.out.println(yString);
+        String tString = encode(encryptionResult.getT());
+        System.out.println(tString);
+        //
+
         byte[] resultX = service.authDecrypt(A, K, I, encryptionResult.getY(), encryptionResult.getT());
         String resultXString = new String(resultX);
 

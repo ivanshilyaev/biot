@@ -1,3 +1,4 @@
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -11,18 +12,22 @@ public class ClientService {
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
 
-    public void turnOn() throws IOException {
-        Request request = new Request.Builder()
-                .url("http://192.168.100.93/led?state=1")
-                .get()
-                .build();
-        client.newCall(request).execute();
-    }
+//    public void turnOn() throws IOException {
+//        switchLamp("1");
+//    }
+//
+//    public void turnOff() throws IOException {
+//        switchLamp("0");
+//    }
 
-    public void turnOff() throws IOException {
+    public void switchLamp(String message, String mac) throws IOException {
+        FormBody body = new FormBody.Builder()
+                .add("message", message)
+                .add("mac", mac)
+                .build();
         Request request = new Request.Builder()
-                .url("http://192.168.100.93/led?state=0")
-                .get()
+                .url("http://192.168.100.93/led")
+                .post(body)
                 .build();
         client.newCall(request).execute();
     }
