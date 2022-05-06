@@ -57,6 +57,12 @@ size_t r; // buf_len
 size_t pos;
 uint8_t S[192];
 
+#define BASH_PRG_NULL       1 // 0x01, 000000 01 */
+#define BASH_PRG_KEY        5 // 0x05, 000001 01 */
+#define BASH_PRG_DATA       9 // 0x09, 000010 01 */
+#define BASH_PRG_TEXT      13 // 0x0D, 000011 01 */
+#define BASH_PRG_OUT       17 // 0x11, 000100 01 */
+
 void start(uint8_t A[], size_t A_len, uint8_t K[], size_t K_len) {
     // 1.
     if (K_len != 0) {
@@ -87,6 +93,41 @@ void start(uint8_t A[], size_t A_len, uint8_t K[], size_t K_len) {
     }
 }
 
+void commit(uint8_t type) {
+    // 1.
+    S[pos / 8] = S[pos / 8] ^ type;
+    // 2.
+    S[r / 8] = S[r / 8] ^ 128; // 1000 0000
+    // 3.
+    bash_f(S);
+    // 4.
+    pos = 0;
+}
+
+void absorb(uint8_t X[], size_t X_len) {
+    // 1.
+    commit(BASH_PRG_DATA);
+    // 2-3.
+    int tempPos = 0;
+    while (8 * tempPos + r < 8 * X_len) {
+        // 3.1
+        pos = r;
+        // 3.2
+        for (int i = 0; i < pos / 8; ++i) {
+            S[i] = S[i] ^ X[tempPos + i];
+        }
+        // 3.3
+        bash_f(S);
+        pos = 0;
+        
+        tempPos += r / 8;
+    }
+    // finish steps 2 & 3
+    for (int i = 0; i < X_len - tempPos; ++i) {
+        S[i] = S[i] ^ X[tempPos + i];
+    }
+}
+
 int main() {
 //    string input = "B194BAC80A08F53B366D008E584A5DE48504FA9D1BB6C7AC252E72C202FDCE0D5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E98B56E27D3BCCF591E181F4C5AB793E9DEE72C8F0C0FA62DDB49F46F73964706075316ED247A3739CBA38303A98BF692BD9B1CE5D141015445FBC95E4D0EF2682080AA227D642F2687F93490405511";
 //    string expectedOutput = "8FE727775EA7F140B95BB6A200CBB28C7F0809C0C0BC68B7DC5AEDC841BD94E403630C301FC255DF5B67DB53EF65E376E8A4D797A6172F2271BA48093173D329C3502AC946767326A2891971392D3F7089959F5D61621238655975E00E2132A0D5018CEEDB17731CCD88FC50151D37C0D4A3359506AEDC2E6109511E7703AFBB014642348D8568AA1A5D9868C4C7E6DFA756B1690C7C2608A2DC136F5997AB8FBB3F4D9F033C87CA6070E117F099C4094972ACD9D976214B7CED8E3F8B6E058E";
@@ -104,10 +145,13 @@ int main() {
     reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
     uint8_t K[32];
     reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
+    uint8_t I[49];
+    reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
     
     l = 256;
     d = 1;
     start(A, 16, K, 32);
+    absorb(I, 49);
     
     for (uint8_t i = 0; i < 192; ++i) {
         cout << unsigned(S[i]) << endl;
