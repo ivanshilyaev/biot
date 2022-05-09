@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 extern "C" {
     #include "library.h"
 }
@@ -129,7 +130,7 @@ void absorb(uint8_t X[], size_t X_len) {
     }
 }
 
-void squeeze(uint8_t Y[], int n) {
+void squeeze(uint8_t Y[], size_t n) {
     // 1.
     commit(BASH_PRG_OUT);
     // 2-3.
@@ -215,19 +216,42 @@ void decrypt(uint8_t Y[], size_t Y_len, uint8_t X[]) {
     }
 }
 
-int main() {
-//    string input = "B194BAC80A08F53B366D008E584A5DE48504FA9D1BB6C7AC252E72C202FDCE0D5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E98B56E27D3BCCF591E181F4C5AB793E9DEE72C8F0C0FA62DDB49F46F73964706075316ED247A3739CBA38303A98BF692BD9B1CE5D141015445FBC95E4D0EF2682080AA227D642F2687F93490405511";
-//    string expectedOutput = "8FE727775EA7F140B95BB6A200CBB28C7F0809C0C0BC68B7DC5AEDC841BD94E403630C301FC255DF5B67DB53EF65E376E8A4D797A6172F2271BA48093173D329C3502AC946767326A2891971392D3F7089959F5D61621238655975E00E2132A0D5018CEEDB17731CCD88FC50151D37C0D4A3359506AEDC2E6109511E7703AFBB014642348D8568AA1A5D9868C4C7E6DFA756B1690C7C2608A2DC136F5997AB8FBB3F4D9F033C87CA6070E117F099C4094972ACD9D976214B7CED8E3F8B6E058E";
-//    // decode
-//    size_t length = input.length() / 2;
-//    uint8_t array[length];
-//    decode(array, input.length(), input.c_str());
-//    // bash_f
-//    bash_f(array);
-//    // encode
-//    string output = encode(array, length);
-//    cout << output << endl;
-    
+void authEncrypt(uint8_t A[], size_t A_len,
+                 uint8_t K[], size_t K_len,
+                 uint8_t I[], size_t I_len,
+                 uint8_t X[], size_t X_len,
+                 uint8_t Y[], uint8_t T[]) {
+    // 1.
+    start(A, A_len, K, K_len);
+    // 2.1
+    absorb(I, I_len);
+    // 2.2
+    encrypt(X, X_len, Y);
+    // 2.3
+    squeeze(T, l);
+}
+
+void authDecrypt(uint8_t A[], size_t A_len,
+                 uint8_t K[], size_t K_len,
+                 uint8_t I[], size_t I_len,
+                 uint8_t Y[], size_t Y_len,
+                 uint8_t X[], uint8_t T[],
+                 bool error) {
+    // 1.
+    start(A, A_len, K, K_len);
+    // 2.1
+    absorb(I, I_len);
+    // 2.2
+    decrypt(Y, Y_len, X);
+    // 2.3
+    uint8_t tempT[l];
+    squeeze(tempT, l);
+    if (!equal(T, T + l / 8, tempT)) {
+        error = true;
+    }
+}
+
+void authEncryptAndDecryptDemo() {
     uint8_t A[16];
     reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
     uint8_t K[32];
@@ -235,24 +259,30 @@ int main() {
     uint8_t I[49];
     reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
     uint8_t X[192] = {0};
+    
     uint8_t Y[192];
+    uint8_t T[l / 8];
     
     l = 256;
     d = 1;
-    start(A, 16, K, 32);
-    absorb(I, 49);
-    encrypt(X, 192, Y);
-    uint8_t T[192];
-    squeeze(T, 256);
+    
+    authEncrypt(A, 16, K, 32, I, 49, X, 192, Y, T);
 
-    string output = encode(Y, 192);
-    cout << output << endl;
+    string encrypted = encode(Y, 192);
+    cout << encrypted << endl;
     string mac = encode(T, 32);
     cout << mac << endl;
     
-//    for (uint8_t i = 0; i < 192; ++i) {
-//        cout << unsigned(X[i]) << endl;
-//    }
+    bool error = false;
+    authDecrypt(A, 16, K, 32, I, 49, Y, 192, X, T, error);
+    if (!error) {
+        string decrypted = encode(X, 192);
+        cout << decrypted << endl;
+    }
+}
+
+int main() {
+    authEncryptAndDecryptDemo();
 
     return 0;
 }
