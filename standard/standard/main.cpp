@@ -123,7 +123,8 @@ void absorb(uint8_t X[], size_t X_len) {
         tempPos += r / 8;
     }
     // finish steps 2 & 3
-    for (int i = 0; i < X_len - tempPos; ++i) {
+    pos = 8 * (X_len - tempPos);
+    for (int i = 0; i < pos  / 8; ++i) {
         S[i] = S[i] ^ X[tempPos + i];
     }
 }
@@ -150,8 +151,68 @@ void squeeze(uint8_t Y[], int n) {
     }
 }
 
-void encrypt() {
-    
+void encrypt(uint8_t X[], size_t X_len, uint8_t Y[]) {
+    // 1.
+    commit(BASH_PRG_TEXT);
+    // 2-4.
+    int tempPos = 0;
+    while (8 * tempPos + r < 8 * X_len) {
+        // 4.1
+        pos = r;
+        // 4.2
+        for (int i = 0; i < pos / 8; ++i) {
+            S[i] = S[i] ^ X[tempPos + i];
+        }
+        // 4.3
+        for (int i = 0; i < pos / 8; ++i) {
+            Y[tempPos + i] = S[i];
+        }
+        // 4.4
+        bash_f(S);
+        pos = 0;
+        
+        tempPos += r / 8;
+    }
+    // finish steps 2 & 4
+    pos = 8 * (X_len - tempPos);
+    for (int i = 0; i < pos / 8; ++i) {
+        S[i] = S[i] ^ X[tempPos + i];
+    }
+    for (int i = 0; i < pos / 8; ++i) {
+        Y[tempPos + i] = S[i];
+    }
+}
+
+void decrypt(uint8_t Y[], size_t Y_len, uint8_t X[]) {
+    // 1.
+    commit(BASH_PRG_TEXT);
+    // 2-4.
+    int tempPos = 0;
+    while (8 * tempPos + r < 8 * Y_len) {
+        // 4.1
+        pos = r;
+        // 4.2
+        for (int i = 0; i < pos / 8; ++i) {
+            X[tempPos + i] = S[i] ^ Y[tempPos + i];
+        }
+        // 4.3
+        for (int i = 0; i < pos / 8; ++i) {
+            S[i] = Y[tempPos + i];
+        }
+        // 4.4
+        bash_f(S);
+        pos = 0;
+        
+        tempPos += r / 8;
+    }
+    // finish steps 2 & 4
+    pos = 8 * (Y_len - tempPos);
+    for (int i = 0; i < pos / 8; ++i) {
+        X[tempPos + i] = S[i] ^ Y[tempPos + i];
+    }
+    for (int i = 0; i < pos / 8; ++i) {
+        S[i] = Y[tempPos + i];
+    }
 }
 
 int main() {
@@ -173,15 +234,25 @@ int main() {
     reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
     uint8_t I[49];
     reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
+    uint8_t X[192] = {0};
+    uint8_t Y[192];
     
     l = 256;
     d = 1;
     start(A, 16, K, 32);
     absorb(I, 49);
+    encrypt(X, 192, Y);
+    uint8_t T[192];
+    squeeze(T, 256);
+
+    string output = encode(Y, 192);
+    cout << output << endl;
+    string mac = encode(T, 32);
+    cout << mac << endl;
     
-    for (uint8_t i = 0; i < 192; ++i) {
-        cout << unsigned(S[i]) << endl;
-    }
+//    for (uint8_t i = 0; i < 192; ++i) {
+//        cout << unsigned(X[i]) << endl;
+//    }
 
     return 0;
 }
