@@ -2,10 +2,8 @@
 #include <ESP8266WiFi.h>
 #include "ESPAsyncWebServer.h"
 #include <secrets.h>
-#include <bee2/core/mem.h>
-#include <bee2/core/hex.h>
-#include <bee2/crypto/bash.h>
-#include <bee2/crypto/belt.h>
+#include "standard77.hpp"
+#include <base64.h>
 
 int LED = LED_BUILTIN; // D1
 AsyncWebServer server(80);
@@ -30,54 +28,76 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.on("/led", HTTP_POST, [](AsyncWebServerRequest *request){
-    String message;
-    String mac;
-    if (request->hasParam(PARAM_INPUT_1) && request->hasParam(PARAM_INPUT_2)) {
-      message = request->getParam(PARAM_INPUT_1)->value();
-      mac = request->getParam(PARAM_INPUT_2)->value();
+    string message;
+    string mac;
+    if (request->hasParam(PARAM_INPUT_1, true) && request->hasParam(PARAM_INPUT_2, true)) {
+      String encodedMessage = request->getParam(PARAM_INPUT_1, true)->value();
+      String encodedMac = request->getParam(PARAM_INPUT_2, true)->value();
+      
+      // Serial.println("encoded params");
+      // Serial.println(encodedMessage);
+      // Serial.println(encodedMac);
 
-      octet buf[192];
-      // octet hash[64];
-      octet state[1024];
-      size_t pos;
+      message = Base64::decode(encodedMessage.c_str());
+      mac = Base64::decode(encodedMac.c_str());
 
-      // 1. start
-      bashPrgStart(state, 256, 1, beltH(), 16, beltH() + 32, 32);
-      // 2.1 absorb
-      bashPrgAbsorb(beltH() + 64, 49, state);
-      // 2.2 decrypt
-      bashPrgDecrStart(state);
-      for (pos = 0; pos < 192; pos += 192 / 6)
-        bashPrgDecrStep(buf + pos, 192 / 6, state);
-      if (!memIsZero(buf, 192))
-        Serial.println("Decryption error");
-      if (hexEq(buf, "6F6E6E")) {
-        Serial.println("onn command received");
+      // Serial.println("params");
+      // Serial.println(message.c_str());
+      // Serial.println(mac.c_str());
 
-        digitalWrite(LED, LOW);
-        // 2.3 squeeze
-        // bashPrgSqueezeStart(state);
-        // bashPrgSqueezeStep(buf, 14, state);
-        // bashPrgSqueezeStep(buf + 14, 32 - 14, state);
-        // if (!memEq(buf, hash, 32))
-        //   Serial.println("Check error");
-        // else {
-        //   digitalWrite(LED, LOW);
-        // }
+      size_t l = 256;
+      size_t d = 1;
+      
+      uint8_t A[16];
+      reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
+      uint8_t K[32];
+      reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
+      uint8_t I[49];
+      reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
+
+      size_t Y_len = message.length();
+      uint8_t Y[Y_len];
+      for (int i = 0; i < Y_len; ++i) {
+          Y[i] = (uint8_t) message[i];
       }
-      else if (hexEq(buf, "6F6666")) {
-        Serial.println("off command received");
 
-        digitalWrite(LED, HIGH);
-        // 2.3 squeeze
-        // bashPrgSqueezeStart(state);
-        // bashPrgSqueezeStep(buf, 14, state);
-        // bashPrgSqueezeStep(buf + 14, 32 - 14, state);
-        // if (!memEq(buf, hash, 32))
-        //   Serial.println("Check error");
-        // else {
-        //   digitalWrite(LED, HIGH);
-        // }
+      uint8_t X[Y_len];
+
+      size_t T_len = mac.length();
+      uint8_t T[T_len];
+      for (int i = 0; i < T_len; ++i) {
+          T[i] = (uint8_t) mac[i];
+      }
+
+      bool error = false;
+      authDecrypt(l, d, A, 16, K, 32, I, 49, Y, Y_len, X, T, error);
+      if (!error) {
+        string xHexString = encode(X, Y_len);
+
+        Serial.println(xHexString.c_str());
+
+        Serial.println(Y_len);
+        Serial.println(T_len);
+        for (int i = 0; i < Y_len; ++i) {
+          Serial.println(Y[i]);
+        }
+        Serial.println("---");
+        for (int i = 0; i < T_len; ++i) {
+          Serial.println(T[i]);
+        }
+        Serial.println("---");
+        for (int i = 0; i < Y_len; ++i) {
+          Serial.println(X[i]);
+        }
+
+        if (xHexString == "6F6E6E") {
+          Serial.println("onn command received");
+          digitalWrite(LED, LOW);
+        }
+        else if (xHexString == "6F6666") {
+          Serial.println("off command received");
+          digitalWrite(LED, HIGH);
+        }
       }
     }
     request->send(200);
