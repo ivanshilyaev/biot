@@ -42,28 +42,29 @@ int main() {
     reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
     uint8_t I[49];
     reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
-    string xString = "onn";
-    size_t X_len = xString.length();
-    uint8_t X[X_len];
-    for (int i = 0; i < X_len; ++i) {
-        X[i] = (uint8_t) xString[i];
-    }
     
-    uint8_t Y[192];
-    uint8_t T[l / 8];
+    string hexY = "066015";
+    string hexT = "B0FBE2437A715029B42D7103899CF7404B548D8C3A9F2DA368CCDC94F106EFEA";
     
-    authEncrypt(l, d, A, 16, K, 32, I, 49, X, X_len, Y, T);
+    size_t Y_len = hexY.length() / 2;
+      uint8_t Y[Y_len];
+      decode(Y, Y_len, hexY.c_str());
+
+      uint8_t X[Y_len];
+
+      size_t T_len = hexT.length() / 2;
+      uint8_t T[T_len];
+      decode(T, T_len, hexT.c_str());
+
+      bool error = false;
+      authDecrypt(l, d, A, 16, K, 32, I, 49, Y, Y_len, X, T, error);
     
-    string encrypted = encode(Y, X_len);
-    cout << encrypted << endl;
-    string mac = encode(T, 32);
-    cout << mac << endl;
-    
-    bool error = false;
-    authDecrypt(l, d, A, 16, K, 32, I, 49, Y, X_len, X, T, error);
-    if (!error) {
-        string decrypted = encode(X, X_len);
+    if (error == false) {
+        string decrypted = encode(X, Y_len);
         cout << decrypted << endl;
+    }
+    else {
+        cout << "error" << endl;
     }
 
     return 0;

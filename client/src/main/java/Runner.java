@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static utils.ByteArrayUtils.concatenate;
-import static utils.HexEncoder.reverseAndDecode;
+import static utils.HexEncoder.*;
 
 public class Runner {
 
@@ -26,7 +26,7 @@ public class Runner {
                 reverseAndDecode("5CB0C0FF33C356B8"),
                 reverseAndDecode("35C405AED8E07F99")
         );
-        String xString = "off";
+        String xString = "onn";
         byte[] X = xString.getBytes(StandardCharsets.UTF_8);
         byte[] I = concatenate(
                 reverseAndDecode("E12BDC1AE28257EC"),
@@ -41,12 +41,9 @@ public class Runner {
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService(l, d);
         EncryptionResult encryptionResult = service.authEncrypt(A, K, I, X);
 
-        System.out.println(new String(Base64.getEncoder().encode(encryptionResult.getY())));
-        System.out.println(new String(Base64.getEncoder().encode(encryptionResult.getT())));
-
         new ClientService().switchLamp(
-                new String(Base64.getEncoder().encode(encryptionResult.getY())),
-                new String(Base64.getEncoder().encode(encryptionResult.getT()))
+                new String(Base64.getEncoder().encode(encode(encryptionResult.getY()).getBytes())),
+                new String(Base64.getEncoder().encode(encode(encryptionResult.getT()).getBytes()))
         );
     }
 }

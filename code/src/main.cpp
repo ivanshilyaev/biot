@@ -28,22 +28,14 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   server.on("/led", HTTP_POST, [](AsyncWebServerRequest *request){
-    string message;
-    string mac;
+    string hexMessage;
+    string hexMac;
     if (request->hasParam(PARAM_INPUT_1, true) && request->hasParam(PARAM_INPUT_2, true)) {
       String encodedMessage = request->getParam(PARAM_INPUT_1, true)->value();
       String encodedMac = request->getParam(PARAM_INPUT_2, true)->value();
-      
-      // Serial.println("encoded params");
-      // Serial.println(encodedMessage);
-      // Serial.println(encodedMac);
 
-      message = Base64::decode(encodedMessage.c_str());
-      mac = Base64::decode(encodedMac.c_str());
-
-      // Serial.println("params");
-      // Serial.println(message.c_str());
-      // Serial.println(mac.c_str());
+      hexMessage = Base64::decode(encodedMessage.c_str());
+      hexMac = Base64::decode(encodedMac.c_str());
 
       size_t l = 256;
       size_t d = 1;
@@ -55,46 +47,26 @@ void setup() {
       uint8_t I[49];
       reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
 
-      size_t Y_len = message.length();
+      size_t Y_len = hexMessage.length() / 2;
       uint8_t Y[Y_len];
-      for (int i = 0; i < Y_len; ++i) {
-          Y[i] = (uint8_t) message[i];
-      }
+      decode(Y, Y_len, hexMessage.c_str());
 
       uint8_t X[Y_len];
 
-      size_t T_len = mac.length();
+      size_t T_len = hexMac.length() / 2;
       uint8_t T[T_len];
-      for (int i = 0; i < T_len; ++i) {
-          T[i] = (uint8_t) mac[i];
-      }
+      decode(T, T_len, hexMac.c_str());
 
       bool error = false;
       authDecrypt(l, d, A, 16, K, 32, I, 49, Y, Y_len, X, T, error);
       if (!error) {
         string xHexString = encode(X, Y_len);
 
-        Serial.println(xHexString.c_str());
-
-        Serial.println(Y_len);
-        Serial.println(T_len);
-        for (int i = 0; i < Y_len; ++i) {
-          Serial.println(Y[i]);
-        }
-        Serial.println("---");
-        for (int i = 0; i < T_len; ++i) {
-          Serial.println(T[i]);
-        }
-        Serial.println("---");
-        for (int i = 0; i < Y_len; ++i) {
-          Serial.println(X[i]);
-        }
-
-        if (xHexString == "6F6E6E") {
+        if (xHexString == "6f6e6e") {
           Serial.println("onn command received");
           digitalWrite(LED, LOW);
         }
-        else if (xHexString == "6F6666") {
+        else if (xHexString == "6f6666") {
           Serial.println("off command received");
           digitalWrite(LED, HIGH);
         }

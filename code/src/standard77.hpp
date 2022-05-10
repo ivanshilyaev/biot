@@ -18,14 +18,14 @@ void reverseAndDecode(uint8_t array[], string s);
 
 string encode(const uint8_t v[], const size_t s);
 
-void authEncrypt(uint8_t varL, uint8_t varD,
+void authEncrypt(size_t varL, size_t varD,
                  uint8_t A[], size_t A_len,
                  uint8_t K[], size_t K_len,
                  uint8_t I[], size_t I_len,
                  uint8_t X[], size_t X_len,
                  uint8_t Y[], uint8_t T[]);
 
-void authDecrypt(uint8_t varL, uint8_t varD,
+void authDecrypt(size_t varL, size_t varD,
                  uint8_t A[], size_t A_len,
                  uint8_t K[], size_t K_len,
                  uint8_t I[], size_t I_len,

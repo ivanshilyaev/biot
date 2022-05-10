@@ -56,7 +56,7 @@ size_t l;
 size_t d;
 size_t r; // buf_len
 size_t pos;
-uint8_t S[192];
+uint8_t S[192] = {0};
 
 #define BASH_PRG_NULL       1 // 0x01, 000000 01 */
 #define BASH_PRG_KEY        5 // 0x05, 000001 01 */
@@ -216,7 +216,7 @@ void decrypt(uint8_t Y[], size_t Y_len, uint8_t X[]) {
     }
 }
 
-void authEncrypt(uint8_t varL, uint8_t varD,
+void authEncrypt(size_t varL, size_t varD,
                  uint8_t A[], size_t A_len,
                  uint8_t K[], size_t K_len,
                  uint8_t I[], size_t I_len,
@@ -234,7 +234,7 @@ void authEncrypt(uint8_t varL, uint8_t varD,
     squeeze(T, l);
 }
 
-void authDecrypt(uint8_t varL, uint8_t varD,
+void authDecrypt(size_t varL, size_t varD,
                  uint8_t A[], size_t A_len,
                  uint8_t K[], size_t K_len,
                  uint8_t I[], size_t I_len,
@@ -252,7 +252,10 @@ void authDecrypt(uint8_t varL, uint8_t varD,
     // 2.3
     uint8_t tempT[l];
     squeeze(tempT, l);
-    if (!equal(T, T + l / 8, tempT)) {
-        error = true;
+    for (int i = 0; i < 32; ++i) {
+        if (tempT[i] != T[i]) {
+            error = true;
+            break;
+        }
     }
 }
