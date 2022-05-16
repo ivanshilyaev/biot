@@ -36,11 +36,9 @@ void handleBody() {
     size_t d = 1;
     
     uint8_t A[16] = {0};
-    // reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
     uint8_t K[32];
-    reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
+    reverseAndDecode(K, PRIVATE_KEY);
     uint8_t I[49] = {0};
-    // reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
 
     size_t Y_len = hexMessage.length() / 2;
     uint8_t Y[Y_len];

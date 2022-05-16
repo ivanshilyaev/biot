@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static utils.ByteArrayUtils.concatenate;
 import static utils.HexEncoder.encode;
 import static utils.HexEncoder.reverseAndDecode;
 
@@ -21,26 +20,11 @@ public class AuthEncryptionTest {
     public void authEncryptionAndDecryption() {
         int l = 256;
         int d = 1;
-        byte[] A = concatenate(
-                reverseAndDecode("B194BAC80A08F53B"),
-                reverseAndDecode("366D008E584A5DE4")
-        );
-        byte[] K = concatenate(
-                reverseAndDecode("5BE3D61217B96181"),
-                reverseAndDecode("FE6786AD716B890B"),
-                reverseAndDecode("5CB0C0FF33C356B8"),
-                reverseAndDecode("35C405AED8E07F99")
-        );
+        byte[] A = reverseAndDecode("B194BAC80A08F53B366D008E584A5DE4");
+        byte[] K = reverseAndDecode("5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
         byte[] X = new byte[192];
-        byte[] I = concatenate(
-                reverseAndDecode("E12BDC1AE28257EC"),
-                reverseAndDecode("703FCCF095EE8DF1"),
-                reverseAndDecode("C1AB76389FE678CA"),
-                reverseAndDecode("F7C6F860D5BB9C4F"),
-                reverseAndDecode("F33C657B637C306A"),
-                reverseAndDecode("DD4EA7799EB23D31"),
-                reverseAndDecode("3E")
-        );
+        byte[] I = reverseAndDecode("E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4F" +
+                "F33C657B637C306ADD4EA7799EB23D313E");
 
         String expectedY = "690673766C3E848CAC7C05169FFB7B7751E52A011040E5602573FAF991044A00" +
                 "4329EEF7BED8E6875830A91854D1BD2EDC6FC2FF37851DBAC249DF400A0549EA" +
@@ -68,27 +52,12 @@ public class AuthEncryptionTest {
     public void authEncryptionWithRandomData() {
         int l = 256;
         int d = 1;
-        byte[] A = concatenate(
-                reverseAndDecode("B194BAC80A08F53B"),
-                reverseAndDecode("366D008E584A5DE4")
-        );
-        byte[] K = concatenate(
-                reverseAndDecode("5BE3D61217B96181"),
-                reverseAndDecode("FE6786AD716B890B"),
-                reverseAndDecode("5CB0C0FF33C356B8"),
-                reverseAndDecode("35C405AED8E07F99")
-        );
+        byte[] A = reverseAndDecode("B194BAC80A08F53B366D008E584A5DE4");
+        byte[] K = reverseAndDecode("5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
         String xString = "off";
         byte[] X = xString.getBytes(StandardCharsets.UTF_8);
-        byte[] I = concatenate(
-                reverseAndDecode("E12BDC1AE28257EC"),
-                reverseAndDecode("703FCCF095EE8DF1"),
-                reverseAndDecode("C1AB76389FE678CA"),
-                reverseAndDecode("F7C6F860D5BB9C4F"),
-                reverseAndDecode("F33C657B637C306A"),
-                reverseAndDecode("DD4EA7799EB23D31"),
-                reverseAndDecode("3E")
-        );
+        byte[] I = reverseAndDecode("E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4F" +
+                "F33C657B637C306ADD4EA7799EB23D313E");
 
         AuthenticatedEncryptionService service = new AuthenticatedEncryptionService(l, d);
         EncryptionResult encryptionResult = service.authEncrypt(A, K, I, X);
