@@ -13,6 +13,10 @@ int LED = LED_BUILTIN; // D1
 const char* PARAM_INPUT_1 = "message";
 const char* PARAM_INPUT_2 = "mac";
 
+void healthCheck() {
+  server.send(200, "text/plain", "Ok");
+}
+
 void handleBody() {
   string hexMessage;
   string hexMac;
@@ -70,13 +74,16 @@ void handleBody() {
 void setup() {
   Serial.begin(115200);
   WiFiManager wifiManager;
-  //wifiManager.startConfigPortal(LIGHT_SSID, LIGHT_PASSWORD);
+  // wifiManager.resetSettings();
+
+  // wifiManager.startConfigPortal(LIGHT_SSID, LIGHT_PASSWORD);
   wifiManager.autoConnect(LIGHT_SSID, LIGHT_PASSWORD);
 
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
 
 
+  server.on("/health", HTTP_GET, healthCheck); // health check request
   server.on("/led", HTTP_POST, handleBody);
   server.begin();
 }

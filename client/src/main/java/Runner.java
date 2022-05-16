@@ -28,7 +28,7 @@ public class Runner {
                 reverseAndDecode("5CB0C0FF33C356B8"),
                 reverseAndDecode("35C405AED8E07F99")
         );
-        String xString = "onn";
+        String xString = "off";
         byte[] X = xString.getBytes(StandardCharsets.UTF_8);
         byte[] I =
                 new byte[49];

@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ClientService {
 
+    private static final String LUMP_STATIC_IP_ADDRESS = "192.168.100.93";
+
     private static final OkHttpClient client = new OkHttpClient().newBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -26,7 +28,7 @@ public class ClientService {
                 .add("mac", mac)
                 .build();
         Request request = new Request.Builder()
-                .url("http://192.168.100.93/led")
+                .url("http://" + LUMP_STATIC_IP_ADDRESS + "/led")
                 .post(body)
                 .build();
         client.newCall(request).execute();
