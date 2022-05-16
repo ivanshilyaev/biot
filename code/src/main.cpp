@@ -4,6 +4,7 @@
 #include <WiFiManager.h>
 #include "standard77.hpp"
 #include "base64.hpp"
+#include "secrets.h"
 
 ESP8266WebServer server(80);
 
@@ -30,12 +31,12 @@ void handleBody() {
     size_t l = 256;
     size_t d = 1;
     
-    uint8_t A[16];
-    reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
+    uint8_t A[16] = {0};
+    // reverseAndDecode(A, "B194BAC80A08F53B366D008E584A5DE4");
     uint8_t K[32];
     reverseAndDecode(K, "5BE3D61217B96181FE6786AD716B890B5CB0C0FF33C356B835C405AED8E07F99");
-    uint8_t I[49];
-    reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
+    uint8_t I[49] = {0};
+    // reverseAndDecode(I, "E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4FF33C657B637C306ADD4EA7799EB23D313E");
 
     size_t Y_len = hexMessage.length() / 2;
     uint8_t Y[Y_len];
@@ -69,7 +70,8 @@ void handleBody() {
 void setup() {
   Serial.begin(115200);
   WiFiManager wifiManager;
-  wifiManager.autoConnect("biot smart lightbulb", "12345678");
+  //wifiManager.startConfigPortal(LIGHT_SSID, LIGHT_PASSWORD);
+  wifiManager.autoConnect(LIGHT_SSID, LIGHT_PASSWORD);
 
   pinMode(LED, OUTPUT);
   digitalWrite(LED, LOW);
