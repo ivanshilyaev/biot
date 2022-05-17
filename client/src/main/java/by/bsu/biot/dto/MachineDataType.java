@@ -1,3 +1,5 @@
+package by.bsu.biot.dto;
+
 public enum MachineDataType {
     NULL("00000001"),
     KEY("00000101"),

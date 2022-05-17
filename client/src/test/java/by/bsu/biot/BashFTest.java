@@ -1,6 +1,9 @@
+package by.bsu.biot;
+
+import by.bsu.biot.library.LibraryNative;
+import by.bsu.biot.util.HexEncoder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import utils.HexEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

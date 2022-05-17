@@ -1,4 +1,8 @@
-import dto.EncryptionResult;
+package by.bsu.biot.service;
+
+import by.bsu.biot.dto.MachineDataType;
+import by.bsu.biot.dto.EncryptionResult;
+import by.bsu.biot.library.LibraryNative;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;

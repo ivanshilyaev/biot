@@ -1,4 +1,4 @@
-package dto;
+package by.bsu.biot.dto;
 
 import lombok.Builder;
 import lombok.Data;

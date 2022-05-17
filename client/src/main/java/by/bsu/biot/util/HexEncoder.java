@@ -1,4 +1,4 @@
-package utils;
+package by.bsu.biot.util;
 
 import org.apache.commons.lang3.ArrayUtils;
 

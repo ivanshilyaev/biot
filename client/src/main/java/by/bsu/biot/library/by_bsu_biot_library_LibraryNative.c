@@ -1,7 +1,7 @@
 #include <jni.h>
 #include <inttypes.h>
 #include <string.h>
-#include "LibraryNative.h"
+#include "by_bsu_biot_library_LibraryNative.h"
 
 // CLEAN MEMORY
 
@@ -83,7 +83,7 @@ static const uint64_t __c24 = 0xde8082cd72debc78;
     s[p_next(23)] ^= __c##i; \
   } while (0)
 
-JNIEXPORT jbyteArray JNICALL Java_LibraryNative_bash_1f(JNIEnv *env, jclass thisClass, jbyteArray inJNIArray) {
+JNIEXPORT jbyteArray JNICALL Java_by_bsu_biot_library_LibraryNative_bash_1f(JNIEnv *env, jclass thisClass, jbyteArray inJNIArray) {
     // Step 1: Convert the incoming JNI jbyteArray to C's jbyte[]
     jbyte *inCArray = (*env)->GetByteArrayElements(env, inJNIArray, NULL);
     if (NULL == inCArray) return NULL;

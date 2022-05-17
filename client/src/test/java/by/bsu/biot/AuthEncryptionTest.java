@@ -1,4 +1,7 @@
-import dto.EncryptionResult;
+package by.bsu.biot;
+
+import by.bsu.biot.service.AuthenticatedEncryptionService;
+import by.bsu.biot.dto.EncryptionResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -6,8 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static utils.HexEncoder.encode;
-import static utils.HexEncoder.reverseAndDecode;
+import static by.bsu.biot.util.HexEncoder.encode;
+import static by.bsu.biot.util.HexEncoder.reverseAndDecode;
 
 public class AuthEncryptionTest {
     @BeforeAll

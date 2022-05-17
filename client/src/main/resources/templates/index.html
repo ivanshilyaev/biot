@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:form="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+    <title>Biot</title>
+</head>
+<body>
+<main>
+    <form th:action="@{/led}" method="post">
+        <label for="led"></label>
+        <input id="led" class="l" type="checkbox" name="light" th:checked="${session.light}" onchange="this.form.submit()">
+    </form>
+</main>
+</body>
+</html>
