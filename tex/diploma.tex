@@ -8,8 +8,9 @@
 \usepackage[unicode, pdftex]{hyperref}
 \usepackage{float}
 \usepackage{listings}
-
 \usepackage{color}
+
+\usepackage{style/bsudiplomatitle14}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -39,29 +40,36 @@
 \topmargin=-1.5cm
 \setlength{\parindent}{1cm}
 
-\title{Криптографическая защита данных в IoT системах}
-\author{Шиляев Иван}
+\title{КРИПТОГРАФИЧЕСКАЯ ЗАЩИТА ДАННЫХ В IoT СИСТЕМАХ}
+\author{ШИЛЯЕВ Иван Владимирович}
+\mentor{
+	ассистент\\
+	М.А. Казловский,\\
+	кандидат физ.-мат. наук,\\
+	доцент И.А. Бодягин\\
+}
+\reviewer{
+	Зав. кафедрой ММАД \line(1,0){100}\\
+	кандидат физ.-мат. наук, доцент И.А. Бодягин\\
+}
 \date{\today}
 
 \begin{document}
-\setcounter{section}{-1}
-\input{titlePage}
-
-\setcounter{page}{2}
-\tableofcontents
- 
-\input{introduction}
-
-\input{chapter01}
-
-\input{chapter02}
-
-\input{chapter03}
-
-\input{chapter04}
-		
-\input{conclusion}
+	\maketitle
+	\setcounter{page}{2}
+	\tableofcontents
+	
+	\input{abstract}
 	 
-\input{listOfReferences}	 
+	\input{introduction}
+	
+	\input{chapter01}
+	\input{chapter02}
+	\input{chapter03}
+	\input{chapter04}
+			
+	\input{conclusion}
+		 
+	\input{listOfReferences}	 
 	
 \end{document}
