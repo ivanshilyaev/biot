@@ -8,7 +8,7 @@
 
 ESP8266WebServer server(80);
 
-int LED = LED_BUILTIN; // D1
+int LED = D1;
 
 const char* PARAM_INPUT_1 = "message";
 const char* PARAM_INPUT_2 = "mac";
@@ -57,11 +57,11 @@ void handleBody() {
 
       if (xHexString == "6f6e6e") {
         Serial.println("onn command received");
-        digitalWrite(LED, LOW);
+        digitalWrite(LED, HIGH);
       }
       else if (xHexString == "6f6666") {
         Serial.println("off command received");
-        digitalWrite(LED, HIGH);
+        digitalWrite(LED, LOW);
       }
     }
   }
@@ -78,8 +78,7 @@ void setup() {
   wifiManager.autoConnect(LIGHT_SSID, LIGHT_PASSWORD);
 
   pinMode(LED, OUTPUT);
-  digitalWrite(LED, LOW);
-
+  digitalWrite(LED, HIGH);
 
   server.on("/health", HTTP_GET, healthCheck); // health check request
   server.on("/led", HTTP_POST, handleBody);
