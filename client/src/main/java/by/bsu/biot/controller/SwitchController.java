@@ -19,17 +19,16 @@ public class SwitchController {
 
     @GetMapping
     public String index(HttpSession session) {
-        session.setAttribute("light", false);
+        session.setAttribute("light", true);
 
         return "index";
     }
 
     @PostMapping("/led")
-    public String switchLamp(HttpSession session)
-            throws IOException {
-        if (!(Boolean)session.getAttribute("light")) {
+    public String switchLamp(HttpSession session) throws IOException {
+        if (!(Boolean) session.getAttribute("light")) {
             clientService.turnOn();
-            log.info("on command sent");
+            log.info("onn command sent");
             session.setAttribute("light", true);
         } else {
             clientService.turnOff();
