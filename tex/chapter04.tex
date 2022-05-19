@@ -290,4 +290,23 @@
 		\caption{Прототип умной лампочки}
 		\label{fig4.6}
 	\end{figure}
+
+	Для демонстрации работы шифрования был проведён эксперимент с перехватыванием данных, отправляемых
+	от компьютера к лампочке по Wi-Fi сети. Для осуществление эксперимента использовался анализатор трафика
+	Wireshark. На рисунке \ref{fig4.7} приведён пример незашифрованной команды по выключению лампочки,
+	а на рисунке \ref{fig4.8} $-$ пример этой же команды, но уже в зашифрованном виде.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.6]{resources/wireshark-encryption-disabled}
+		\caption{Пример незашифрованной команды}
+		\label{fig4.7}
+	\end{figure}
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[scale=0.6]{resources/wireshark-encryption-enabled}
+		\caption{Пример зашифрованной команды}
+		\label{fig4.8}
+	\end{figure}
 	
