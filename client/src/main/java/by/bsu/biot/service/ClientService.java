@@ -28,6 +28,8 @@ public class ClientService {
 
     private String encryptionKey;
 
+    private int messageCount;
+
     private static final String LUMP_STATIC_IP_ADDRESS = "192.168.100.93";
 
     private static final int HTTP_SUCCESS_CODE = 200;
@@ -40,9 +42,9 @@ public class ClientService {
     public void init() {
         int l = 256;
         int d = 1;
-        byte[] A = new byte[0];
         byte[] I = new byte[0];
-        encryptionService.init(l, d, A, I);
+        encryptionService.init(l, d, I);
+        messageCount = 0;
 
         encryptionKey = HexEncoder.generateRandomHexString(System.getenv("INITIAL_ENCRYPTION_KEY").length());
         log.info("encryption key: " + encryptionKey);
@@ -67,11 +69,14 @@ public class ClientService {
     }
 
     public void sendEncryptionKey() throws IOException {
+        byte[] A = String.valueOf(++messageCount).getBytes();
         byte[] K = HexEncoder.decode(System.getenv("INITIAL_ENCRYPTION_KEY"));
         byte[] encryptionKeyBytes = HexEncoder.decode(encryptionKey);
 
-        EncryptionResult encryptionResult = encryptionService.authEncrypt(K, encryptionKeyBytes);
+        EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, encryptionKeyBytes);
 
+        log.info("encrypted message: " + HexEncoder.encode(encryptionResult.getY()));
+        log.info("mac: " + HexEncoder.encode(encryptionResult.getT()));
         String message = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
         String mac = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
 
@@ -86,6 +91,8 @@ public class ClientService {
         Response response = client.newCall(request).execute();
         if (response.code() == HTTP_SUCCESS_CODE) {
             log.info("encryption key has been successfully delivered");
+            ++messageCount;
+            log.info("count: " + messageCount);
         }
     }
 
@@ -101,11 +108,14 @@ public class ClientService {
     }
 
     private void sendEncryptedMessage(String state) throws IOException {
+        byte[] A = String.valueOf(++messageCount).getBytes();
         byte[] K = HexEncoder.decode(encryptionKey);
         byte[] X = state.getBytes(StandardCharsets.UTF_8);
 
-        EncryptionResult encryptionResult = encryptionService.authEncrypt(K, X);
+        EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, X);
 
+        log.info("encrypted message: " + HexEncoder.encode(encryptionResult.getY()));
+        log.info("mac: " + HexEncoder.encode(encryptionResult.getT()));
         String message = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
         String mac = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
 
@@ -120,6 +130,8 @@ public class ClientService {
         Response response = client.newCall(request).execute();
         if (response.code() == HTTP_SUCCESS_CODE) {
             log.info("command has been successfully processed");
+            ++messageCount;
+            log.info("count: " + messageCount);
         }
     }
 }

@@ -35,10 +35,9 @@ public class AuthenticatedEncryptionService {
 
     private byte[] I;
 
-    public void init(int l, int d, byte[] A, byte[] I) {
+    public void init(int l, int d, byte[] I) {
         this.l = l;
         this.d = d;
-        this.A = A;
         this.I = I;
         S = new byte[N_BYTES];
     }
@@ -200,7 +199,7 @@ public class AuthenticatedEncryptionService {
                 .build();
     }
 
-    public EncryptionResult authEncrypt(byte[] K, byte[] X) {
+    public EncryptionResult authEncrypt(byte[] A, byte[] K, byte[] X) {
         // 1.
         start(A, K);
         // 2.1

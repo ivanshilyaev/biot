@@ -6,17 +6,19 @@
 #include "base64.hpp"
 #include "secrets.h"
 
-ESP8266WebServer server(80);
-
-int LED = D1;
-
 const char* PARAM_INPUT_1 = "param1";
 const char* PARAM_INPUT_2 = "param2";
 const char* ERROR_MESSAGE = "error";
 const char* ENCODED_ON_COMMAND = "6f6e6e";
 const char* ENCODED_OFF_COMMAND = "6f6666";
 
+ESP8266WebServer server(80);
+
+int LED = D1;
+
 string ENCRYPTION_KEY;
+
+int messageCount;
 
 void healthCheck() {
   server.send(200, "text/plain", "Ok");
@@ -31,14 +33,28 @@ string decrypt(string key) {
     BASE64::decode(encodedMessage.c_str(), hexMessageArray);
     string hexMessage = reinterpret_cast<char *>(hexMessageArray);
 
-    uint8_t hexMacArray[BASE64::decodeLength(encodedMessage.c_str())];
+    Serial.println("encrypted message:");
+    Serial.println(hexMessage.c_str());
+
+    uint8_t hexMacArray[BASE64::decodeLength(encodedMac.c_str())];
     BASE64::decode(encodedMac.c_str(), hexMacArray);
     string hexMac = reinterpret_cast<char *>(hexMacArray); 
+
+    Serial.println("mac:");
+    Serial.println(hexMac.c_str());
 
     size_t l = 256;
     size_t d = 1;
     
-    uint8_t A[0];
+    string countString = std::to_string(++messageCount);
+    uint8_t A[countString.length()];
+    Serial.println("count:");
+    Serial.println(messageCount);
+    char aChar[countString.length()];
+    strcpy(aChar, countString.c_str());
+    for (int i = 0; i < countString.length(); ++i) {
+      A[i] = (uint8_t)aChar[i];
+    }
     uint8_t K[32];
     reverseAndDecode(K, key);
     uint8_t I[0];
@@ -54,7 +70,7 @@ string decrypt(string key) {
     decode(T, T_len, hexMac.c_str());
 
     bool error = false;
-    authDecrypt(l, d, A, 0, K, 32, I, 0, Y, Y_len, X, T, error);
+    authDecrypt(l, d, A, countString.length(), K, 32, I, 0, Y, Y_len, X, T, error);
     if (!error) {
       return encode(X, Y_len);
     }
@@ -67,6 +83,7 @@ void handleKey() {
   if (ENCRYPTION_KEY != ERROR_MESSAGE) {
     Serial.println("encryption key:");
     Serial.println(ENCRYPTION_KEY.c_str());
+    ++messageCount;
     server.send(200);
   }
 }
@@ -78,11 +95,13 @@ void handleBody() {
       if (state == ENCODED_ON_COMMAND) {
           Serial.println("encrypted command received: onn");
           digitalWrite(LED, HIGH);
+          ++messageCount;
           server.send(200);
         }
         else if (state == ENCODED_OFF_COMMAND) {
           Serial.println("encrypted command received: off");
           digitalWrite(LED, LOW);
+          ++messageCount;
           server.send(200);
         }
     }
@@ -93,11 +112,13 @@ void handleBody() {
       if (state == "onn") {
         Serial.println("command received: onn");
         digitalWrite(LED, HIGH);
+        ++messageCount;
         server.send(200);
       }
       else if (state == "off") {
         Serial.println("command received: off");
         digitalWrite(LED, LOW);
+        ++messageCount;
         server.send(200);
       }
     }
@@ -114,6 +135,7 @@ void setup() {
 
   pinMode(LED, OUTPUT);
   digitalWrite(LED, HIGH);
+  messageCount = 0;
 
   server.on("/health", HTTP_GET, healthCheck); // health check request
   server.on("/key", HTTP_POST, handleKey); // encryption key
