@@ -2,6 +2,8 @@ package by.bsu.biot.util;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.security.SecureRandom;
+
 public class HexEncoder {
 
     private final static char[] HEX = new char[]{
@@ -54,5 +56,15 @@ public class HexEncoder {
         ArrayUtils.reverse(result);
 
         return result;
+    }
+
+    public static String generateRandomHexString(int n) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder builder = new StringBuilder();
+        while (builder.length() < n) {
+            builder.append(Integer.toHexString(random.nextInt()));
+        }
+
+        return builder.substring(0, n).toUpperCase();
     }
 }

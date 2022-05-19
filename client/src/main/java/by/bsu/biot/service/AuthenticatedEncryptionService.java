@@ -4,21 +4,23 @@ import by.bsu.biot.dto.MachineDataType;
 import by.bsu.biot.dto.EncryptionResult;
 import by.bsu.biot.library.LibraryNative;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Service
 public class AuthenticatedEncryptionService {
 
     private static final int N = 1536;
     private static final int N_BYTES = 192;
 
     // уровень стойкости
-    private final int l;
+    private int l;
 
     // ёмкость
-    private final int d;
+    private int d;
 
     // длина буфера
     private int r;
@@ -29,9 +31,15 @@ public class AuthenticatedEncryptionService {
     // состояние автомата
     private byte[] S;
 
-    public AuthenticatedEncryptionService(int l, int d) {
+    private byte[] A;
+
+    private byte[] I;
+
+    public void init(int l, int d, byte[] A, byte[] I) {
         this.l = l;
         this.d = d;
+        this.A = A;
+        this.I = I;
         S = new byte[N_BYTES];
     }
 
@@ -177,6 +185,22 @@ public class AuthenticatedEncryptionService {
      * @return зашифрованное сообщение Y и имитовставка T
      */
     public EncryptionResult authEncrypt(byte[] A, byte[] K, byte[] I, byte[] X) {
+        // 1.
+        start(A, K);
+        // 2.1
+        absorb(I);
+        // 2.2
+        byte[] Y = encrypt(X);
+        // 2.3
+        byte[] T = squeeze(l);
+        // 2.4
+        return EncryptionResult.builder()
+                .Y(Y)
+                .T(T)
+                .build();
+    }
+
+    public EncryptionResult authEncrypt(byte[] K, byte[] X) {
         // 1.
         start(A, K);
         // 2.1

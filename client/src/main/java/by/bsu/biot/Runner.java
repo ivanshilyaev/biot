@@ -11,6 +11,6 @@ public class Runner {
     }
 
     public static void main(String[] args) throws IOException {
-        new ClientService().turnOff();
+        // new ClientService().turnOff();
     }
 }
