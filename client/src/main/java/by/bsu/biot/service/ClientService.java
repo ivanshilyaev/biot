@@ -69,7 +69,9 @@ public class ClientService {
     public void sendEncryptionKey() throws IOException {
         byte[] K = HexEncoder.decode(System.getenv("INITIAL_ENCRYPTION_KEY"));
         byte[] encryptionKeyBytes = HexEncoder.decode(encryptionKey);
+
         EncryptionResult encryptionResult = encryptionService.authEncrypt(K, encryptionKeyBytes);
+
         String message = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
         String mac = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
 
@@ -99,7 +101,7 @@ public class ClientService {
     }
 
     private void sendEncryptedMessage(String state) throws IOException {
-        byte[] K = HexEncoder.reverseAndDecode(System.getenv("INITIAL_ENCRYPTION_KEY"));
+        byte[] K = HexEncoder.decode(encryptionKey);
         byte[] X = state.getBytes(StandardCharsets.UTF_8);
 
         EncryptionResult encryptionResult = encryptionService.authEncrypt(K, X);
