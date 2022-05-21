@@ -1,0 +1,233 @@
+\usepackage[english,russian]{babel}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{indentfirst}
+\usepackage[unicode, pdftex]{hyperref}
+\usepackage{float}
+\usepackage{color}
+\usepackage{listings}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstloadlanguages{Java}
+\lstset{
+	language=Java,
+	frame=L,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1, 
+	backgroundcolor=\color{white}
+	showspaces=false,
+	showtabs=false,
+	keywordstyle=\color{pblue},
+	commentstyle=\color{pgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=false,
+	tabsize=4
+}
+
+\renewcommand\appendixname{Приложение}
+\gdef\appendix{
+	\par
+	\setcounter{section}{0}
+	\setcounter{subsection}{0}
+	\def\thesection{\Asbuk{section}}
+	\def\section##1{
+		\refstepcounter{section}
+		\setcounter{table}{0}
+		\def\thetable{\Asbuk{section}.\arabic{table}}
+		\def\thefigure{\Asbuk{section}.\arabic{figure}}
+		\goodbreak\noindent{
+			\indent\Large\bf\hbox to 8.5em{\appendixname\ \thesection\hss}\hspace{0.8ex}##1
+		}
+		\nobreak\vspace{1em}\nobreak\noindent
+		\addcontentsline{toc}{chapter}{\hbox to 8.5em{\appendixname\ \thesection\hss}\hspace{0.8ex}##1}
+	}
+}
+
+% Кириллица в листингах
+\lstset{
+  literate=
+    {а}{{\selectfont\char224}}1
+    {б}{{\selectfont\char225}}1
+    {в}{{\selectfont\char226}}1
+    {г}{{\selectfont\char227}}1
+    {д}{{\selectfont\char228}}1
+    {е}{{\selectfont\char229}}1
+    {ё}{{\"e}}1
+    {ж}{{\selectfont\char230}}1
+    {з}{{\selectfont\char231}}1
+    {и}{{\selectfont\char232}}1
+    {й}{{\selectfont\char233}}1
+    {к}{{\selectfont\char234}}1
+    {л}{{\selectfont\char235}}1
+    {м}{{\selectfont\char236}}1
+    {н}{{\selectfont\char237}}1
+    {о}{{\selectfont\char238}}1
+    {п}{{\selectfont\char239}}1
+    {р}{{\selectfont\char240}}1
+    {с}{{\selectfont\char241}}1
+    {т}{{\selectfont\char242}}1
+    {у}{{\selectfont\char243}}1
+    {ф}{{\selectfont\char244}}1
+    {х}{{\selectfont\char245}}1
+    {ц}{{\selectfont\char246}}1
+    {ч}{{\selectfont\char247}}1
+    {ш}{{\selectfont\char248}}1
+    {щ}{{\selectfont\char249}}1
+    {ъ}{{\selectfont\char250}}1
+    {ы}{{\selectfont\char251}}1
+    {ь}{{\selectfont\char252}}1
+    {э}{{\selectfont\char253}}1
+    {ю}{{\selectfont\char254}}1
+    {я}{{\selectfont\char255}}1
+    {А}{{\selectfont\char192}}1
+    {Б}{{\selectfont\char193}}1
+    {В}{{\selectfont\char194}}1
+    {Г}{{\selectfont\char195}}1
+    {Д}{{\selectfont\char196}}1
+    {Е}{{\selectfont\char197}}1
+    {Ё}{{\"E}}1
+    {Ж}{{\selectfont\char198}}1
+    {З}{{\selectfont\char199}}1
+    {И}{{\selectfont\char200}}1
+    {Й}{{\selectfont\char201}}1
+    {К}{{\selectfont\char202}}1
+    {Л}{{\selectfont\char203}}1
+    {М}{{\selectfont\char204}}1
+    {Н}{{\selectfont\char205}}1
+    {О}{{\selectfont\char206}}1
+    {П}{{\selectfont\char207}}1
+    {Р}{{\selectfont\char208}}1
+    {С}{{\selectfont\char209}}1
+    {Т}{{\selectfont\char210}}1
+    {У}{{\selectfont\char211}}1
+    {Ф}{{\selectfont\char212}}1
+    {Х}{{\selectfont\char213}}1
+    {Ц}{{\selectfont\char214}}1
+    {Ч}{{\selectfont\char215}}1
+    {Ш}{{\selectfont\char216}}1
+    {Щ}{{\selectfont\char217}}1
+    {Ъ}{{\selectfont\char218}}1
+    {Ы}{{\selectfont\char219}}1
+    {Ь}{{\selectfont\char220}}1
+    {Э}{{\selectfont\char221}}1
+    {Ю}{{\selectfont\char222}}1
+    {Я}{{\selectfont\char223}}1
+}
+
+% Определение полей
+\setlength{\oddsidemargin}{0cm}
+\setlength{\hoffset}{0.46cm} % 1in + \hoffset = 3cm левое поле;
+\setlength{\textwidth}{17cm} % 21cm - 3cm (левое поле) - 1cm (правое поле) = 17cm;
+\setlength{\headheight}{0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headsep}{0cm}
+\setlength{\voffset}{-0.54cm} % 1in + \voffset = 2cm верхнее поле;
+\setlength{\textheight}{25.7cm} % 29.7cm - 2cm (верхнее поле) - 2cm (нижнее поле) = 25.7cm;
+
+% Оформление глав, разделов и т.д.
+\makeatletter
+
+% Не подавлять абзацный отступ в главах
+\renewcommand{\chapter} {
+  \cleardoublepage\thispagestyle{plain}
+  \global\@topnum=0 \@afterindenttrue \secdef\@chapter\@schapter
+}
+
+% Оформление нумерованных глав
+\renewcommand{\@makechapterhead}[1] {
+  \vspace{36pt} % Пустое место вверху страницы
+  {
+    \centering
+    \parindent=18pt
+    \normalfont\Large\bfseries
+    \chaptername ~ \thechapter{} \par % Номер главы
+    #1 \par % Заголовок текста с новой строки
+    \nopagebreak % Не отрываем заголовок от текста
+    \vspace{36pt} % Пустое место между заголовком и текстом
+  }
+}
+
+% Оформление ненумерованных глав
+\renewcommand{\@makeschapterhead}[1] {
+  \vspace{36pt} % Пустое место вверху страницы
+  {
+    \centering
+    \parindent=18pt
+    \normalfont\Large\bfseries #1 \par
+    \nopagebreak % чтобы не оторвать заголовок от текста
+    \vspace{25pt} % между заголовком и текстом
+  }
+}
+
+% Оформление разделов
+\renewcommand{\section} {
+    \@startsection{section}
+                  {1}
+                  {18pt}
+                  {3.5ex plus 1ex minus .2ex}
+                  {2.3ex plus .2ex}
+                  {\normalfont\Large\bfseries\raggedright}
+}
+
+% Оформление подразделов
+\renewcommand{\subsection} {
+  \@startsection{subsection}
+                {2}
+                {18pt}
+                {3.25ex plus 1ex minus .2ex}
+                {1.5ex plus .2ex}
+                {\normalfont\large\bfseries\raggedright}
+}
+
+% Оформление подподразделов
+\renewcommand{\subsubsection} {
+  \@startsection{subsubsection}
+                {3}
+                {18pt}
+                {3.25ex plus 1ex minus .2ex}
+                {1.5ex plus .2ex}
+                {\normalfont\large\bfseries\raggedright}
+}
+
+%оформление библиографии
+\bibliographystyle{unsrt}
+\renewcommand{\@biblabel}[1]{#1.}
+
+\addto\captionsrussian{\renewcommand\figurename{Рисунок}}
+
+\newcommand{\@makefigurecaption}[2]{%
+\vspace{\abovecaptionskip}%
+\sbox{\@tempboxa}{\normalsize #1 --- \normalsize #2}%
+\ifdim \wd\@tempboxa >\hsize {\center\hyphenpenalty=10000\normalsize #1 --- \normalsize #2 \par}%
+\else \global\@minipagefalse \hbox to \hsize
+{\hfil \hyphenpenalty=10000 \normalsize #1 --- \normalsize #2\hfil}%
+\fi \vspace{\belowcaptionskip}}
+
+\newlength\abovetablecaptionskip
+\newlength\belowtablecaptionskip
+\newlength\tableparindent
+\setlength\abovetablecaptionskip{10\p@}
+\setlength\belowtablecaptionskip{0\p@}
+\setlength\tableparindent{18\p@}
+\newcommand{\@maketablecaption}[2]{
+  \vskip\abovetablecaptionskip
+  \hskip\tableparindent \normalsize #1~---\ \normalsize #2\par
+  \vskip\belowtablecaptionskip
+}
+
+\makeatother%
+
+\sloppy
