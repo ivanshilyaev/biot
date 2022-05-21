@@ -11,6 +11,7 @@ import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ClientService {
 
-    private final AuthenticatedEncryptionService encryptionService;
+    private final EncryptionAndHashService encryptionService;
 
     @Value("${biot.encryption.enabled}")
     private boolean encryptionEnabled;
@@ -32,6 +33,10 @@ public class ClientService {
 
     private static final String LUMP_STATIC_IP_ADDRESS = "192.168.100.93";
 
+    private static final String LED_PATH = "/led";
+
+    private static final String KEY_PATH = "/key";
+
     private static final int HTTP_SUCCESS_CODE = 200;
 
     private static final OkHttpClient client = new OkHttpClient().newBuilder()
@@ -39,6 +44,7 @@ public class ClientService {
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
 
+    @PostConstruct
     public void init() {
         int l = 256;
         int d = 1;
@@ -53,85 +59,56 @@ public class ClientService {
     public void turnOn() throws IOException {
         log.info("onn command sent");
         if (encryptionEnabled) {
-            sendEncryptedMessage("onn");
+            sendEncryptedMessage("onn", encryptionKey, LED_PATH);
         } else {
-            sendMessage("onn");
+            sendPostRequest("onn", "", LED_PATH);
         }
     }
 
     public void turnOff() throws IOException {
         log.info("off command sent");
         if (encryptionEnabled) {
-            sendEncryptedMessage("off");
+            sendEncryptedMessage("off", encryptionKey, LED_PATH);
         } else {
-            sendMessage("off");
+            sendPostRequest("off", "", LED_PATH);
         }
     }
 
     public void sendEncryptionKey() throws IOException {
-        byte[] A = String.valueOf(++messageCount).getBytes();
-        byte[] K = HexEncoder.decode(System.getenv("INITIAL_ENCRYPTION_KEY"));
-        byte[] encryptionKeyBytes = HexEncoder.decode(encryptionKey);
-
-        EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, encryptionKeyBytes);
-
-        log.info("encrypted message: " + HexEncoder.encode(encryptionResult.getY()));
-        log.info("mac: " + HexEncoder.encode(encryptionResult.getT()));
-        String message = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
-        String mac = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
-
-        FormBody body = new FormBody.Builder()
-                .add("param1", message)
-                .add("param2", mac)
-                .build();
-        Request request = new Request.Builder()
-                .url("http://" + LUMP_STATIC_IP_ADDRESS + "/key")
-                .post(body)
-                .build();
-        Response response = client.newCall(request).execute();
-        if (response.code() == HTTP_SUCCESS_CODE) {
-            log.info("encryption key has been successfully delivered");
-            ++messageCount;
-            log.info("count: " + messageCount);
-        }
+        sendEncryptedMessage(encryptionKey, System.getenv("INITIAL_ENCRYPTION_KEY"), KEY_PATH);
     }
 
-    private void sendMessage(String state) throws IOException {
-        FormBody body = new FormBody.Builder()
-                .add("param1", state)
-                .build();
-        Request request = new Request.Builder()
-                .url("http://" + LUMP_STATIC_IP_ADDRESS + "/led")
-                .post(body)
-                .build();
-        client.newCall(request).execute();
-    }
-
-    private void sendEncryptedMessage(String state) throws IOException {
+    private void sendEncryptedMessage(String message, String key, String path) throws IOException {
         byte[] A = String.valueOf(++messageCount).getBytes();
-        byte[] K = HexEncoder.decode(encryptionKey);
-        byte[] X = state.getBytes(StandardCharsets.UTF_8);
+        byte[] K = HexEncoder.decode(key);
+        byte[] X = message.getBytes(StandardCharsets.UTF_8);
 
         EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, X);
 
         log.info("encrypted message: " + HexEncoder.encode(encryptionResult.getY()));
         log.info("mac: " + HexEncoder.encode(encryptionResult.getT()));
-        String message = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
-        String mac = new String(Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
+        String encryptedMessage = new String(
+                Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
+        String mac = new String(
+                Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
 
+        Response response = sendPostRequest(encryptedMessage, mac, path);
+        if (response.code() == HTTP_SUCCESS_CODE) {
+            log.info("message has been successfully processed");
+            log.info("count: " + ++messageCount);
+        }
+    }
+
+    private Response sendPostRequest(String param1, String param2, String path) throws IOException {
         FormBody body = new FormBody.Builder()
-                .add("param1", message)
-                .add("param2", mac)
+                .add("param1", param1)
+                .add("param2", param2)
                 .build();
         Request request = new Request.Builder()
-                .url("http://" + LUMP_STATIC_IP_ADDRESS + "/led")
+                .url("http://" + LUMP_STATIC_IP_ADDRESS + path)
                 .post(body)
                 .build();
-        Response response = client.newCall(request).execute();
-        if (response.code() == HTTP_SUCCESS_CODE) {
-            log.info("command has been successfully processed");
-            ++messageCount;
-            log.info("count: " + messageCount);
-        }
+
+        return client.newCall(request).execute();
     }
 }

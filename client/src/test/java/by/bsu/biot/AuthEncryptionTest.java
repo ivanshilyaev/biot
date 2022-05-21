@@ -1,6 +1,6 @@
 package by.bsu.biot;
 
-import by.bsu.biot.service.AuthenticatedEncryptionService;
+import by.bsu.biot.service.EncryptionAndHashService;
 import by.bsu.biot.dto.EncryptionResult;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,8 @@ public class AuthEncryptionTest {
                 "BAD5B168440025693967E77394DC088B0ECCFA8D291BA13D44F60B06E2EDB351";
         String expectedT = "CDE5AF6EF9A14B7D0C191B869A6343ED6A4E9AAB4EE00A579E9E682D0EC051E3";
 
-        AuthenticatedEncryptionService service = new AuthenticatedEncryptionService(l, d);
+        EncryptionAndHashService service = new EncryptionAndHashService();
+        service.init(l, d, I);
 
         // шифрование
         EncryptionResult encryptionResult = service.authEncrypt(A, K, I, X);
@@ -62,16 +63,9 @@ public class AuthEncryptionTest {
         byte[] I = reverseAndDecode("E12BDC1AE28257EC703FCCF095EE8DF1C1AB76389FE678CAF7C6F860D5BB9C4F" +
                 "F33C657B637C306ADD4EA7799EB23D313E");
 
-        AuthenticatedEncryptionService service = new AuthenticatedEncryptionService(l, d);
-        EncryptionResult encryptionResult = service.authEncrypt(A, K, I, X);
-
-        //
-        System.out.println(encode(xString.getBytes()));
-        String yString = encode(encryptionResult.getY());
-        System.out.println(yString);
-        String tString = encode(encryptionResult.getT());
-        System.out.println(tString);
-        //
+        EncryptionAndHashService service = new EncryptionAndHashService();
+        service.init(l, d, I);
+        EncryptionResult encryptionResult = service.authEncrypt(A, K, X);
 
         byte[] resultX = service.authDecrypt(A, K, I, encryptionResult.getY(), encryptionResult.getT());
         String resultXString = new String(resultX);

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class AuthenticatedEncryptionService {
+public class EncryptionAndHashService {
 
     private static final int N = 1536;
     private static final int N_BYTES = 192;
@@ -30,8 +30,6 @@ public class AuthenticatedEncryptionService {
 
     // состояние автомата
     private byte[] S;
-
-    private byte[] A;
 
     private byte[] I;
 
@@ -174,6 +172,23 @@ public class AuthenticatedEncryptionService {
         }
         // 5.
         return X;
+    }
+
+    /**
+     * @param A - анонс
+     * @param X - сообщение
+     * @param n - длина хэша
+     * @return хэш-значение Y длины n
+     */
+    public byte[] hash(byte[] A, byte[] X, int n) {
+        // 1.
+        start(A, new byte[0]);
+        // 2.
+        absorb(X);
+        // 3.
+        byte[] Y = squeeze(n);
+        // 4.
+        return Y;
     }
 
     /**
