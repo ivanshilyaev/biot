@@ -1,0 +1,957 @@
+\newpage
+
+\begin{flushright}{\bf \Large ПРИЛОЖЕНИЕ А}\end{flushright}
+\begin{center}
+{\bf Исходный код реализации алгоритмов bash-s и bash-f из стандарта СТБ 34.101.77 на языке 
+	программирования C}
+\end{center}
+
+\addcontentsline{toc}{chapter}{Приложение А}
+
+\begin{lstlisting}[language=C, label=bash-code]
+#include <jni.h>
+#include <inttypes.h>
+#include <string.h>
+#include "by_bsu_biot_library_LibraryNative.h"
+
+typedef void *(*memset_t)(void *, int, size_t);
+
+static volatile memset_t memset_func = memset;
+
+void memory_clean(void *ptr, size_t len)
+{
+	memset_func(ptr, 0, len);
+}
+
+#define rol64(n, c) (((n) << (c)) | ((n) >> (64 - (c))))
+
+#define bash_s(w0, w1, w2, m1, n1, m2, n2) \
+do { \
+	register uint64_t t0, t1, t2; \
+	t0 = rol64(w0, m1); \
+	w0 ^= w1 ^ w2; \
+	t1 = w1 ^ rol64(w0, n1); \
+	w1 = t0 ^ t1; \
+	w2 ^= rol64(w2, m2) ^ rol64(t1, n2); \
+	t1 = w0 | w2; \
+	t2 = w0 & w1; \
+	t0 = ~w2; \
+	t0 |= w1; \
+	w1 ^= t1; \
+	w2 ^= t2; \
+	w0 ^= t0; \
+} while (0)
+
+static const uint64_t __c1  = 0x3bf5080ac8ba94b1;
+static const uint64_t __c2  = 0xc1d1659c1bbd92f6;
+static const uint64_t __c3  = 0x60e8b2ce0ddec97b;
+static const uint64_t __c4  = 0xec5fb8fe790fbc13;
+static const uint64_t __c5  = 0xaa043de6436706a7;
+static const uint64_t __c6  = 0x8929ff6a5e535bfd;
+static const uint64_t __c7  = 0x98bf1e2c50c97550;
+static const uint64_t __c8  = 0x4c5f8f162864baa8;
+static const uint64_t __c9  = 0x262fc78b14325d54;
+static const uint64_t __c10 = 0x1317e3c58a192eaa;
+static const uint64_t __c11 = 0x098bf1e2c50c9755;
+static const uint64_t __c12 = 0xd8ee19681d669304;
+static const uint64_t __c13 = 0x6c770cb40eb34982;
+static const uint64_t __c14 = 0x363b865a0759a4c1;
+static const uint64_t __c15 = 0xc73622b47c4c0ace;
+static const uint64_t __c16 = 0x639b115a3e260567;
+static const uint64_t __c17 = 0xede6693460f3da1d;
+static const uint64_t __c18 = 0xaad8d5034f9935a0;
+static const uint64_t __c19 = 0x556c6a81a7cc9ad0;
+static const uint64_t __c20 = 0x2ab63540d3e64d68;
+static const uint64_t __c21 = 0x155b1aa069f326b4;
+static const uint64_t __c22 = 0x0aad8d5034f9935a;
+static const uint64_t __c23 = 0x0556c6a81a7cc9ad;
+static const uint64_t __c24 = 0xde8082cd72debc78;
+
+#define P0(x) x
+#define P1(x) (((x) < 8) ? 8 + (((x) + 2 * ((x) & 1) + 7) % 8) : \
+(((x) < 16) ? 8 + ((x) ^ 1) : (5 * (x) + 6) % 8))
+#define P2(x) P1(P1(x))
+#define P3(x) (8 * ((x) / 8) + (((x) % 8) + 4) % 8)
+#define P4(x) P1(P3(x))
+#define P5(x) P2(P3(x))
+
+#define bash_r(s, p, p_next, i) \
+do { \
+	bash_s(s[p( 0)], s[p( 8)], s[p(16)],  8, 53, 14,  1); \
+	bash_s(s[p( 1)], s[p( 9)], s[p(17)], 56, 51, 34,  7); \
+	bash_s(s[p( 2)], s[p(10)], s[p(18)],  8, 37, 46, 49); \
+	bash_s(s[p( 3)], s[p(11)], s[p(19)], 56,  3,  2, 23); \
+	bash_s(s[p( 4)], s[p(12)], s[p(20)],  8, 21, 14, 33); \
+	bash_s(s[p( 5)], s[p(13)], s[p(21)], 56, 19, 34, 39); \
+	bash_s(s[p( 6)], s[p(14)], s[p(22)],  8,  5, 46, 17); \
+	bash_s(s[p( 7)], s[p(15)], s[p(23)], 56, 35,  2, 55); \
+	s[p_next(23)] ^= __c##i; \
+} while (0)
+
+JNIEXPORT jbyteArray JNICALL Java_by_bsu_biot_library_LibraryNative_bash_1f(JNIEnv *env, jclass thisClass, jbyteArray inJNIArray) {
+	jbyte *inCArray = (*env)->GetByteArrayElements(env, inJNIArray, NULL);
+	if (NULL == inCArray) return NULL;
+	uint8_t arr[192];
+	for (int i = 0; i < 192; i++)
+	arr[i] = (uint8_t)inCArray[i];
+	
+	uint64_t s[24];
+	memcpy(s, arr, 192);
+	bash_r(s, P0, P1,  1);
+	bash_r(s, P1, P2,  2);
+	bash_r(s, P2, P3,  3);
+	bash_r(s, P3, P4,  4);
+	bash_r(s, P4, P5,  5);
+	bash_r(s, P5, P0,  6);
+	bash_r(s, P0, P1,  7);
+	bash_r(s, P1, P2,  8);
+	bash_r(s, P2, P3,  9);
+	bash_r(s, P3, P4, 10);
+	bash_r(s, P4, P5, 11);
+	bash_r(s, P5, P0, 12);
+	bash_r(s, P0, P1, 13);
+	bash_r(s, P1, P2, 14);
+	bash_r(s, P2, P3, 15);
+	bash_r(s, P3, P4, 16);
+	bash_r(s, P4, P5, 17);
+	bash_r(s, P5, P0, 18);
+	bash_r(s, P0, P1, 19);
+	bash_r(s, P1, P2, 20);
+	bash_r(s, P2, P3, 21);
+	bash_r(s, P3, P4, 22);
+	bash_r(s, P4, P5, 23);
+	bash_r(s, P5, P0, 24);
+	memcpy(arr, s, 192);
+	memory_clean(s, 192);
+	
+	jbyte outCArray[192];
+	for (int i = 0; i < 192; i++)
+	outCArray[i] = (jbyte)arr[i];
+	
+	(*env)->ReleaseByteArrayElements(env, inJNIArray, inCArray, 0);
+	
+	jbyteArray outJNIArray = (*env)->NewByteArray(env, 192);
+	if (NULL == outJNIArray) return NULL;
+	(*env)->SetByteArrayRegion(env, outJNIArray, 0, 192, outCArray);
+	return outJNIArray;
+}
+\end{lstlisting}
+
+
+\newpage
+
+\begin{flushright}{\bf \Large ПРИЛОЖЕНИЕ Б}\end{flushright}
+\begin{center}
+{\bf Исходный код реализации аутентифицированного шифрования из стандарта СТБ 34.101.77 
+	на языке программирования Java}
+\end{center}
+
+\addcontentsline{toc}{chapter}{Приложение Б}
+
+\begin{lstlisting}[language=Java,label=encr-code-java]
+package by.bsu.biot.service;
+
+import by.bsu.biot.dto.MachineDataType;
+import by.bsu.biot.dto.EncryptionResult;
+import by.bsu.biot.library.LibraryNative;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+public class EncryptionAndHashService {
+	
+	private static final int N = 1536;
+	private static final int N_BYTES = 192;
+	
+	// уровень стойкости
+	private int l;
+	
+	// ёмкость
+	private int d;
+	
+	// длина буфера
+	private int r;
+	
+	// текущее смещение в буфере
+	private int pos;
+	
+	// состояние автомата
+	private byte[] S;
+	
+	private byte[] I;
+	
+	public void init(int l, int d) {
+		this.l = l;
+		this.d = d;
+		S = new byte[N_BYTES];
+	}
+	
+	private void start(byte[] A, byte[] K) {
+		// 1.
+		if (K.length != 0) {
+			r = N - l - d * l / 2;
+		}
+		// 2.
+		else {
+			r = N - 2 * d * l;
+		}
+		// 3.
+		pos = 8 * (1 + A.length + K.length);
+		// 4.
+		S[0] = (byte) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
+		System.arraycopy(A, 0, S, 1, A.length);
+		System.arraycopy(K, 0, S, 1 + A.length, K.length);
+		// 5.
+		for (int i = pos / 8; i < 1472 / 8; ++i) {
+			S[i] = 0;
+		}
+		// 6.
+		S[1472 / 8] = (byte) ((l / 4 + d) % (Math.pow(2, 64)));
+		for (int i = 1472 / 8 + 1; i < N_BYTES; ++i) {
+			S[i] = 0;
+		}
+	}
+	
+	private void commit(MachineDataType type) {
+		// 1.
+		S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(type.code, 2));
+		// 2.
+		S[r / 8] = (byte) (S[r / 8] ^ 128); // 1000 0000
+		// 3.
+		S = LibraryNative.bash_f(S);
+		// 4.
+		pos = 0;
+	}
+	
+	private void absorb(byte[] X) {
+		// 1.
+		commit(MachineDataType.DATA);
+		// 2.
+		byte[][] XSplit = split(X, r);
+		// 3.
+		for (byte[] Xi : XSplit) {
+			// 3.1
+			pos = Xi.length * 8;
+			// 3.2
+			for (int i = 0; i < pos / 8; ++i) {
+				S[i] = (byte) (S[i] ^ Xi[i]);
+			}
+			// 3.3
+			if (pos == r) {
+				S = LibraryNative.bash_f(S);
+				pos = 0;
+			}
+		}
+	}
+	
+	private byte[] squeeze(int n) {
+		// 1.
+		commit(MachineDataType.OUT);
+		// 2.
+		byte[] Y = new byte[0];
+		// 3.
+		while (8 * Y.length + r <= n) {
+			// 3.1
+			Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, r / 8));
+			// 3.2
+			S = LibraryNative.bash_f(S);
+		}
+		// 4.
+		pos = n - 8 * Y.length;
+		// 5.
+		Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos / 8));
+		// 6.
+		return Y;
+	}
+	
+	private byte[] encrypt(byte[] X) {
+		// 1.
+		commit(MachineDataType.TEXT);
+		// 2.
+		byte[][] XSplit = split(X, r);
+		// 3.
+		byte[] Y = new byte[0];
+		// 4.
+		for (byte[] Xi : XSplit) {
+			// 4.1
+			pos = Xi.length * 8;
+			// 4.2
+			for (int i = 0; i < pos / 8; ++i) {
+				S[i] = (byte) (S[i] ^ Xi[i]);
+			}
+			// 4.3
+			Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos / 8));
+			// 4.4
+			if (pos == r) {
+				S = LibraryNative.bash_f(S);
+				pos = 0;
+			}
+		}
+		// 5.
+		return Y;
+	}
+	
+	private byte[] decrypt(byte[] Y) {
+		// 1.
+		commit(MachineDataType.TEXT);
+		// 2.
+		byte[][] YSplit = split(Y, r);
+		// 3.
+		byte[] X = new byte[0];
+		// 4.
+		for (byte[] Yi : YSplit) {
+			// 4.1
+			pos = Yi.length * 8;
+			// 4.2
+			byte[] tempS = ArrayUtils.subarray(S, 0, pos / 8);
+			for (int i = 0; i < pos / 8; ++i) {
+				tempS[i] = (byte) (tempS[i] ^ Yi[i]);
+			}
+			X = ArrayUtils.addAll(X, tempS);
+			// 4.3
+			System.arraycopy(Yi, 0, S, 0, pos / 8);
+			// 4.4
+			if (pos == r) {
+				S = LibraryNative.bash_f(S);
+				pos = 0;
+			}
+		}
+		// 5.
+		return X;
+	}
+	
+	/**
+	* @param A - анонс
+	* @param K - ключ
+	* @param I - ассоциированные данные
+	* @param X - сообщение
+	* @return зашифрованное сообщение Y и имитовставка T
+	*/
+	public EncryptionResult authEncrypt(byte[] A, byte[] K, byte[] I, byte[] X) {
+		// 1.
+		start(A, K);
+		// 2.1
+		absorb(I);
+		// 2.2
+		byte[] Y = encrypt(X);
+		// 2.3
+		byte[] T = squeeze(l);
+		// 2.4
+		return EncryptionResult.builder()
+		.Y(Y)
+		.T(T)
+		.build();
+	}
+	
+	/**
+	 * @param A - анонс
+	 * @param K - ключ
+     * @param I - ассоциированные данные
+	 * @param Y - зашифрованное сообщение
+	 * @param T - имитовставка
+	 * @return расшифрованное сообщение X
+	 */
+	public byte[] authDecrypt(byte[] A, byte[] K, byte[] I, byte[] Y, byte[] T) {
+		// 1.
+		start(A, K);
+		// 2.1
+		absorb(I);
+		// 2.2
+		byte[] X = decrypt(Y);
+		// 2.3
+		if (!Arrays.equals(T, squeeze(l))) {
+			return null;
+		}
+		return X;
+	}
+	
+	private static byte[][] split(byte[] bytes, int r) {
+		if (bytes.length * 8 <= r) {
+			return new byte[][]{bytes};
+		}
+		List<byte[]> result = new ArrayList<>();
+		int tempPos = 0;
+		while (tempPos * 8 + r < bytes.length * 8) {
+			result.add(ArrayUtils.subarray(bytes, tempPos, tempPos + r / 8));
+			tempPos += r / 8;
+		}
+		result.add(ArrayUtils.subarray(bytes, tempPos, bytes.length));
+		
+		return result.toArray(new byte[0][]);
+	}
+}
+
+\end{lstlisting}
+
+
+\newpage
+
+\begin{flushright}{\bf \Large ПРИЛОЖЕНИЕ В}\end{flushright}
+\begin{center}
+	{\bf Исходный код реализации аутентифицированного шифрования из стандарта СТБ 34.101.77 
+		на языке программирования C++}
+\end{center}
+
+\addcontentsline{toc}{chapter}{Приложение В}
+
+\begin{lstlisting}[language=C++,label=encr-code-cpp]
+#include <iostream>
+#include <cmath>
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+extern "C" {
+	#include "library.h"
+}
+using namespace std;
+
+size_t decode(uint8_t dest[], size_t count, const char *src) {
+	char buf[3];
+	size_t i;
+	for (i = 0; i < count && *src; i++) {
+		buf[0] = *src++;
+		buf[1] = '\0';
+		if (*src) {
+			buf[1] = *src++;
+			buf[2] = '\0';
+		}
+		if (sscanf(buf, "%hhx", &dest[i]) != 1)
+		break;
+	}
+	return i;
+}
+
+void reverseAndDecode(uint8_t array[], string s) {
+	string temp;
+	for (int i = (int) (s.length() - 1); i >= 0; i -= 2) {
+		temp += s[i-1];
+		temp += s[i];
+	}
+	decode(array, temp.length(), temp.c_str());
+	// reverse
+	for (int i = 0; i < s.length() / 4; ++i) {
+		uint8_t temp = array[i];
+		array[i] = array[s.length() / 2 - 1 - i];
+		array[s.length() / 2 - 1 - i] = temp;
+	}
+}
+
+string encode(const uint8_t v[], const size_t s) {
+	stringstream ss;
+	
+	ss << hex << setfill('0');
+	
+	for (int i = 0; i < s; i++) {
+		ss << hex << setw(2) << static_cast<int>(v[i]);
+	}
+	
+	return ss.str();
+}
+
+size_t l;
+size_t d;
+size_t r; // buf_len
+size_t pos;
+uint8_t S[192] = {0};
+
+#define BASH_PRG_NULL       1 // 0x01, 000000 01 */
+#define BASH_PRG_KEY        5 // 0x05, 000001 01 */
+#define BASH_PRG_DATA       9 // 0x09, 000010 01 */
+#define BASH_PRG_TEXT      13 // 0x0D, 000011 01 */
+#define BASH_PRG_OUT       17 // 0x11, 000100 01 */
+
+void start(uint8_t A[], size_t A_len, uint8_t K[], size_t K_len) {
+	// 1.
+	if (K_len != 0) {
+		r = 1536 - l - d * l / 2;
+	}
+	// 2.
+	else {
+		r = 1536 - 2 * d * l;
+	}
+	// 3.
+	pos = 8 * (1 + A_len + K_len);
+	// 4.
+	S[0] = (8 * A_len / 2 + 8 * K_len / 32) % (size_t)(pow(2, 8));
+	for (int i = 0; i < A_len; ++i) {
+		S[1 + i] = A[i];
+	}
+	for (int i = 0; i < K_len; ++i) {
+		S[1 + A_len + i] = K[i];
+	}
+	// 5.
+	for (int i = (int) pos / 8; i < 1472 / 8; ++i) {
+		S[i] = 0;
+	}
+	// 6.
+	S[1472 / 8] = (l / 4 + d) % (size_t)(pow(2, 8));
+	for (int i = 1472 / 8 + 1; i < 192; ++i) {
+		S[i] = 0;
+	}
+}
+
+void commit(uint8_t type) {
+	// 1.
+	S[pos / 8] = S[pos / 8] ^ type;
+	// 2.
+	S[r / 8] = S[r / 8] ^ 128; // 1000 0000
+	// 3.
+	bash_f(S);
+	// 4.
+	pos = 0;
+}
+
+void absorb(uint8_t X[], size_t X_len) {
+	// 1.
+	commit(BASH_PRG_DATA);
+	// 2-3.
+	int tempPos = 0;
+	while (8 * tempPos + r < 8 * X_len) {
+		// 3.1
+		pos = r;
+		// 3.2
+		for (int i = 0; i < pos / 8; ++i) {
+			S[i] = S[i] ^ X[tempPos + i];
+		}
+		// 3.3
+		bash_f(S);
+		pos = 0;
+		
+		tempPos += r / 8;
+	}
+	// finish steps 2 & 3
+	pos = 8 * (X_len - tempPos);
+	for (int i = 0; i < pos  / 8; ++i) {
+		S[i] = S[i] ^ X[tempPos + i];
+	}
+}
+
+void squeeze(uint8_t Y[], size_t n) {
+	// 1.
+	commit(BASH_PRG_OUT);
+	// 2-3.
+	int tempPos = 0;
+	while (8 * tempPos + r <= n) {
+		// 3.1
+		for (int i = 0; i < r / 8; ++i) {
+			Y[tempPos + i] = S[i];
+		}
+		tempPos += r / 8;
+		// 3.2
+		bash_f(S);
+	}
+	// 4.
+	pos = n - 8 * tempPos;
+	// 5.
+	for (int i = 0; i < pos / 8; ++i) {
+		Y[tempPos + i] = S[i];
+	}
+}
+
+void encrypt(uint8_t X[], size_t X_len, uint8_t Y[]) {
+	// 1.
+	commit(BASH_PRG_TEXT);
+	// 2-4.
+	int tempPos = 0;
+	while (8 * tempPos + r < 8 * X_len) {
+		// 4.1
+		pos = r;
+		// 4.2
+		for (int i = 0; i < pos / 8; ++i) {
+			S[i] = S[i] ^ X[tempPos + i];
+		}
+		// 4.3
+		for (int i = 0; i < pos / 8; ++i) {
+			Y[tempPos + i] = S[i];
+		}
+		// 4.4
+		bash_f(S);
+		pos = 0;
+		
+		tempPos += r / 8;
+	}
+	// finish steps 2 & 4
+	pos = 8 * (X_len - tempPos);
+	for (int i = 0; i < pos / 8; ++i) {
+		S[i] = S[i] ^ X[tempPos + i];
+	}
+	for (int i = 0; i < pos / 8; ++i) {
+		Y[tempPos + i] = S[i];
+	}
+}
+
+void decrypt(uint8_t Y[], size_t Y_len, uint8_t X[]) {
+	// 1.
+	commit(BASH_PRG_TEXT);
+	// 2-4.
+	int tempPos = 0;
+	while (8 * tempPos + r < 8 * Y_len) {
+		// 4.1
+		pos = r;
+		// 4.2
+		for (int i = 0; i < pos / 8; ++i) {
+			X[tempPos + i] = S[i] ^ Y[tempPos + i];
+		}
+		// 4.3
+		for (int i = 0; i < pos / 8; ++i) {
+			S[i] = Y[tempPos + i];
+		}
+		// 4.4
+		bash_f(S);
+		pos = 0;
+		
+		tempPos += r / 8;
+	}
+	// finish steps 2 & 4
+	pos = 8 * (Y_len - tempPos);
+	for (int i = 0; i < pos / 8; ++i) {
+		X[tempPos + i] = S[i] ^ Y[tempPos + i];
+	}
+	for (int i = 0; i < pos / 8; ++i) {
+		S[i] = Y[tempPos + i];
+	}
+}
+
+void authEncrypt(size_t varL, size_t varD,
+uint8_t A[], size_t A_len,
+uint8_t K[], size_t K_len,
+uint8_t I[], size_t I_len,
+uint8_t X[], size_t X_len,
+uint8_t Y[], uint8_t T[]) {
+	l = varL;
+	d = varD;
+	// 1.
+	start(A, A_len, K, K_len);
+	// 2.1
+	absorb(I, I_len);
+	// 2.2
+	encrypt(X, X_len, Y);
+	// 2.3
+	squeeze(T, l);
+}
+
+void authDecrypt(size_t varL, size_t varD,
+uint8_t A[], size_t A_len,
+uint8_t K[], size_t K_len,
+uint8_t I[], size_t I_len,
+uint8_t Y[], size_t Y_len,
+uint8_t X[], uint8_t T[],
+bool error) {
+	l = varL;
+	d = varD;
+	// 1.
+	start(A, A_len, K, K_len);
+	// 2.1
+	absorb(I, I_len);
+	// 2.2
+	decrypt(Y, Y_len, X);
+	// 2.3
+	uint8_t tempT[l];
+	squeeze(tempT, l);
+	for (int i = 0; i < 32; ++i) {
+		if (tempT[i] != T[i]) {
+			error = true;
+			break;
+		}
+	}
+}
+
+\end{lstlisting}
+
+
+\newpage
+
+\begin{flushright}{\bf \Large ПРИЛОЖЕНИЕ Г}\end{flushright}
+\begin{center}
+{\bf Исходный код реализации сервиса по отправке команд на умное устройство 
+	на языке программирования Java}
+\end{center}
+
+\addcontentsline{toc}{chapter}{Приложение Г}
+
+\begin{lstlisting}[language=Java,label=client-code]
+package by.bsu.biot.service;
+
+import by.bsu.biot.dto.EncryptionResult;
+import by.bsu.biot.util.HexEncoder;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.concurrent.TimeUnit;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ClientService {
+	
+	private final EncryptionAndHashService encryptionService;
+	
+	@Value("${biot.encryption.enabled}")
+	private boolean encryptionEnabled;
+	
+	private String encryptionKey;
+	
+	private int messageCount;
+	
+	private static final String LUMP_STATIC_IP_ADDRESS = "192.168.100.93";
+	
+	private static final String LED_PATH = "/led";
+	
+	private static final String KEY_PATH = "/key";
+	
+	private static final int HTTP_SUCCESS_CODE = 200;
+	
+	private static final OkHttpClient client = new OkHttpClient().newBuilder()
+	.connectTimeout(10, TimeUnit.SECONDS)
+	.readTimeout(30, TimeUnit.SECONDS)
+	.build();
+	
+	@PostConstruct
+	public void init() {
+		int l = 256;
+		int d = 1;
+		byte[] I = new byte[0];
+		encryptionService.init(l, d, I);
+		messageCount = 0;
+		
+		encryptionKey = HexEncoder.generateRandomHexString(System.getenv("INITIAL_ENCRYPTION_KEY").length());
+		log.info("encryption key: " + encryptionKey);
+	}
+	
+	public void turnOn() throws IOException {
+		log.info("onn command sent");
+		if (encryptionEnabled) {
+			sendEncryptedMessage("onn", encryptionKey, LED_PATH);
+		} else {
+			sendPostRequest("onn", "", LED_PATH);
+		}
+	}
+	
+	public void turnOff() throws IOException {
+		log.info("off command sent");
+		if (encryptionEnabled) {
+			sendEncryptedMessage("off", encryptionKey, LED_PATH);
+		} else {
+			sendPostRequest("off", "", LED_PATH);
+		}
+	}
+	
+	public void sendEncryptionKey() throws IOException {
+		sendEncryptedMessage(encryptionKey, System.getenv("INITIAL_ENCRYPTION_KEY"), KEY_PATH);
+	}
+	
+	private void sendEncryptedMessage(String message, String key, String path) throws IOException {
+		byte[] A = String.valueOf(++messageCount).getBytes();
+		byte[] K = HexEncoder.decode(key);
+		byte[] X = message.getBytes(StandardCharsets.UTF_8);
+		
+		EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, X);
+		
+		log.info("encrypted message: " + HexEncoder.encode(encryptionResult.getY()));
+		log.info("mac: " + HexEncoder.encode(encryptionResult.getT()));
+		String encryptedMessage = new String(
+		Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getY()).getBytes()));
+		String mac = new String(
+		Base64.getEncoder().encode(HexEncoder.encode(encryptionResult.getT()).getBytes()));
+		
+		Response response = sendPostRequest(encryptedMessage, mac, path);
+		if (response.code() == HTTP_SUCCESS_CODE) {
+			log.info("message has been successfully processed");
+			log.info("count: " + ++messageCount);
+		}
+	}
+	
+	private Response sendPostRequest(String param1, String param2, String path) throws IOException {
+		FormBody body = new FormBody.Builder()
+		.add("param1", param1)
+		.add("param2", param2)
+		.build();
+		Request request = new Request.Builder()
+		.url("http://" + LUMP_STATIC_IP_ADDRESS + path)
+		.post(body)
+		.build();
+		
+		return client.newCall(request).execute();
+	}
+}
+
+\end{lstlisting}
+
+
+\newpage
+
+\begin{flushright}{\bf \Large ПРИЛОЖЕНИЕ Д}\end{flushright}
+\begin{center}
+	{\bf Исходный код реализации прошивки для микроконтроллера ESP8266 
+		на языке программирования C++}
+\end{center}
+
+\addcontentsline{toc}{chapter}{Приложение Д}
+
+\begin{lstlisting}[language=C++,label=esp-code]
+#include <ESP8266WiFi.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
+#include "standard77.hpp"
+#include "base64.hpp"
+#include "secrets.h"
+
+const char* PARAM_INPUT_1 = "param1";
+const char* PARAM_INPUT_2 = "param2";
+const char* ERROR_MESSAGE = "error";
+const char* ENCODED_ON_COMMAND = "6f6e6e";
+const char* ENCODED_OFF_COMMAND = "6f6666";
+
+ESP8266WebServer server(80);
+
+int LED = D1;
+
+string ENCRYPTION_KEY;
+
+int messageCount;
+
+void healthCheck() {
+	server.send(200, "text/plain", "Ok");
+}
+
+string decrypt(string key) {
+	if (server.hasArg(PARAM_INPUT_1) && server.hasArg(PARAM_INPUT_2)) {
+		string encodedMessage = server.arg(PARAM_INPUT_1).c_str();
+		string encodedMac = server.arg(PARAM_INPUT_2).c_str();
+		
+		uint8_t hexMessageArray[BASE64::decodeLength(encodedMessage.c_str())];
+		BASE64::decode(encodedMessage.c_str(), hexMessageArray);
+		string hexMessage = reinterpret_cast<char *>(hexMessageArray);
+		
+		Serial.println("encrypted message:");
+		Serial.println(hexMessage.c_str());
+		
+		uint8_t hexMacArray[32];
+		BASE64::decode(encodedMac.c_str(), hexMacArray);
+		string hexMac = reinterpret_cast<char *>(hexMacArray); 
+		
+		Serial.println("mac:");
+		Serial.println(hexMac.c_str());
+		
+		size_t l = 256;
+		size_t d = 1;
+		
+		string countString = std::to_string(++messageCount);
+		uint8_t A[countString.length()];
+		Serial.println("count:");
+		Serial.println(messageCount);
+		char aChar[countString.length()];
+		strcpy(aChar, countString.c_str());
+		for (int i = 0; i < countString.length(); ++i) {
+			A[i] = (uint8_t)aChar[i];
+		}
+		uint8_t K[32];
+		reverseAndDecode(K, key);
+		uint8_t I[0];
+		
+		size_t Y_len = hexMessage.length() / 2;
+		uint8_t Y[Y_len];
+		decode(Y, Y_len, hexMessage.c_str());
+		
+		uint8_t X[Y_len];
+		
+		size_t T_len = 16;
+		uint8_t T[T_len];
+		decode(T, T_len, hexMac.c_str());
+		
+		bool error = false;
+		authDecrypt(l, d, A, countString.length(), K, 32, I, 0, Y, Y_len, X, T, error);
+		if (!error) {
+			return encode(X, Y_len);
+		}
+	}
+	return ERROR_MESSAGE;
+}
+
+void handleKey() {
+	ENCRYPTION_KEY.clear();
+	ENCRYPTION_KEY = decrypt(INITIAL_ENCRYPTION_KEY);
+	if (ENCRYPTION_KEY != ERROR_MESSAGE) {
+		Serial.println("encryption key:");
+		Serial.println(ENCRYPTION_KEY.c_str());
+		++messageCount;
+		server.send(200);
+	}
+}
+
+void handleBody() {
+	if (ENCRYPTIN_ENABLED) {
+		string state = decrypt(ENCRYPTION_KEY);
+		if (state != ERROR_MESSAGE) {
+			if (state == ENCODED_ON_COMMAND) {
+				Serial.println("encrypted command received: onn");
+				digitalWrite(LED, HIGH);
+				++messageCount;
+				server.send(200);
+			}
+			else if (state == ENCODED_OFF_COMMAND) {
+				Serial.println("encrypted command received: off");
+				digitalWrite(LED, LOW);
+				++messageCount;
+				server.send(200);
+			}
+		}
+	}
+	else {
+		if (server.hasArg(PARAM_INPUT_1)) {
+			String state = server.arg(PARAM_INPUT_1);
+			if (state == "onn") {
+				Serial.println("command received: onn");
+				digitalWrite(LED, HIGH);
+				++messageCount;
+				server.send(200);
+			}
+			else if (state == "off") {
+				Serial.println("command received: off");
+				digitalWrite(LED, LOW);
+				++messageCount;
+				server.send(200);
+			}
+		}
+	}
+}
+
+void setup() {
+	Serial.begin(115200);
+	WiFiManager wifiManager;
+	// wifiManager.resetSettings();
+	
+	// wifiManager.startConfigPortal(LIGHT_SSID, LIGHT_PASSWORD);
+	wifiManager.autoConnect(LIGHT_SSID, LIGHT_PASSWORD);
+	
+	pinMode(LED, OUTPUT);
+	digitalWrite(LED, HIGH);
+	messageCount = 0;
+	
+	server.on("/health", HTTP_GET, healthCheck); // health check request
+	server.on("/key", HTTP_POST, handleKey); // encryption key
+	server.on("/led", HTTP_POST, handleBody); // led commands
+	server.begin();
+}
+
+void loop() {
+	server.handleClient();
+}
+
+\end{lstlisting}
