@@ -59,7 +59,7 @@ public class ClientService {
     public void turnOn() throws IOException {
         log.info("onn command sent");
         if (encryptionEnabled) {
-            sendEncryptedMessage("onn", encryptionKey, LED_PATH);
+            sendEncryptedMessage(HexEncoder.encode("onn".getBytes(StandardCharsets.UTF_8)), encryptionKey, LED_PATH);
         } else {
             sendPostRequest("onn", "", LED_PATH);
         }
@@ -68,7 +68,7 @@ public class ClientService {
     public void turnOff() throws IOException {
         log.info("off command sent");
         if (encryptionEnabled) {
-            sendEncryptedMessage("off", encryptionKey, LED_PATH);
+            sendEncryptedMessage(HexEncoder.encode("off".getBytes(StandardCharsets.UTF_8)), encryptionKey, LED_PATH);
         } else {
             sendPostRequest("off", "", LED_PATH);
         }
@@ -81,7 +81,7 @@ public class ClientService {
     private void sendEncryptedMessage(String message, String key, String path) throws IOException {
         byte[] A = String.valueOf(++messageCount).getBytes();
         byte[] K = HexEncoder.decode(key);
-        byte[] X = message.getBytes(StandardCharsets.UTF_8);
+        byte[] X = HexEncoder.decode(message);
 
         EncryptionResult encryptionResult = encryptionService.authEncrypt(A, K, X);
 

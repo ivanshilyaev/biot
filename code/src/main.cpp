@@ -26,8 +26,8 @@ void healthCheck() {
 
 string decrypt(string key) {
   if (server.hasArg(PARAM_INPUT_1) && server.hasArg(PARAM_INPUT_2)) {
-    String encodedMessage = server.arg(PARAM_INPUT_1);
-    String encodedMac = server.arg(PARAM_INPUT_2);
+    string encodedMessage = server.arg(PARAM_INPUT_1).c_str();
+    string encodedMac = server.arg(PARAM_INPUT_2).c_str();
 
     uint8_t hexMessageArray[BASE64::decodeLength(encodedMessage.c_str())];
     BASE64::decode(encodedMessage.c_str(), hexMessageArray);
@@ -36,7 +36,7 @@ string decrypt(string key) {
     Serial.println("encrypted message:");
     Serial.println(hexMessage.c_str());
 
-    uint8_t hexMacArray[BASE64::decodeLength(encodedMac.c_str())];
+    uint8_t hexMacArray[32];
     BASE64::decode(encodedMac.c_str(), hexMacArray);
     string hexMac = reinterpret_cast<char *>(hexMacArray); 
 
@@ -65,7 +65,7 @@ string decrypt(string key) {
 
     uint8_t X[Y_len];
 
-    size_t T_len = hexMac.length() / 2;
+    size_t T_len = 16;
     uint8_t T[T_len];
     decode(T, T_len, hexMac.c_str());
 
@@ -79,6 +79,7 @@ string decrypt(string key) {
 }
 
 void handleKey() {
+  ENCRYPTION_KEY.clear();
   ENCRYPTION_KEY = decrypt(INITIAL_ENCRYPTION_KEY);
   if (ENCRYPTION_KEY != ERROR_MESSAGE) {
     Serial.println("encryption key:");
