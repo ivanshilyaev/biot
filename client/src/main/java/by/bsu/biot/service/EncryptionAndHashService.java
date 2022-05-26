@@ -23,10 +23,10 @@ public class EncryptionAndHashService {
     private int d;
 
     // длина буфера
-    private int r;
+    private int r; // 8 times less
 
     // текущее смещение в буфере
-    private int pos;
+    private int pos; // 8 times less
 
     // состояние автомата
     private byte[] S;
@@ -56,12 +56,12 @@ public class EncryptionAndHashService {
         System.arraycopy(A, 0, S, 1, A.length);
         System.arraycopy(K, 0, S, 1 + A.length, K.length);
         // 5.
-        for (int i = pos / 8; i < 1472 / 8; ++i) {
+        for (int i = pos / 8; i < 184; ++i) {
             S[i] = 0;
         }
         // 6.
-        S[1472 / 8] = (byte) ((l / 4 + d) % (Math.pow(2, 64)));
-        for (int i = 1472 / 8 + 1; i < N_BYTES; ++i) {
+        S[184] = (byte) ((l / 4 + d) % 256);
+        for (int i = 185; i < N_BYTES; ++i) {
             S[i] = 0;
         }
     }
@@ -185,10 +185,8 @@ public class EncryptionAndHashService {
         start(A, new byte[0]);
         // 2.
         absorb(X);
-        // 3.
-        byte[] Y = squeeze(n);
-        // 4.
-        return Y;
+        // 3 & 4.
+        return squeeze(n);
     }
 
     /**

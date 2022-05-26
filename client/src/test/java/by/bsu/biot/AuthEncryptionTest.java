@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
+import static by.bsu.biot.util.HexEncoder.encode;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static by.bsu.biot.util.HexEncoder.encode;
 import static by.bsu.biot.util.HexEncoder.reverseAndDecode;
 
 public class AuthEncryptionTest {
@@ -21,6 +21,7 @@ public class AuthEncryptionTest {
     // А.6 Аутентифицированное шифрование
     @Test
     public void authEncryptionAndDecryption() {
+        long start = System.nanoTime();
         int l = 256;
         int d = 1;
         byte[] A = reverseAndDecode("B194BAC80A08F53B366D008E584A5DE4");
@@ -49,6 +50,9 @@ public class AuthEncryptionTest {
 
         // расшифрование
         byte[] XDecrypted = service.authDecrypt(A, K, I, encryptionResult.getY(), encryptionResult.getT());
+        long finish = System.nanoTime();
+        System.out.println(0.000001 * (finish - start) + " ms");
+
         assertArrayEquals(X, XDecrypted);
     }
 
