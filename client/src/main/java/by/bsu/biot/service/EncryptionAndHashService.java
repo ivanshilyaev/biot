@@ -43,20 +43,20 @@ public class EncryptionAndHashService {
     private void start(byte[] A, byte[] K) {
         // 1.
         if (K.length != 0) {
-            r = N - l - d * l / 2;
+            r = (N - l - d * l / 2) / 8;
         }
         // 2.
         else {
-            r = N - 2 * d * l;
+            r = (N - 2 * d * l) / 8;
         }
         // 3.
-        pos = 8 * (1 + A.length + K.length);
+        pos = 1 + A.length + K.length;
         // 4.
-        S[0] = (byte) ((8 * A.length / 2 + 8 * K.length / 32) % (Math.pow(2, 8)));
+        S[0] = (byte) ((8 * A.length / 2 + 8 * K.length / 32) % 256);
         System.arraycopy(A, 0, S, 1, A.length);
         System.arraycopy(K, 0, S, 1 + A.length, K.length);
         // 5.
-        for (int i = pos / 8; i < 184; ++i) {
+        for (int i = pos; i < 184; ++i) {
             S[i] = 0;
         }
         // 6.
@@ -68,9 +68,9 @@ public class EncryptionAndHashService {
 
     private void commit(MachineDataType type) {
         // 1.
-        S[pos / 8] = (byte) (S[pos / 8] ^ Byte.parseByte(type.code, 2));
+        S[pos] = (byte) (S[pos] ^ Byte.parseByte(type.code, 2));
         // 2.
-        S[r / 8] = (byte) (S[r / 8] ^ 128); // 1000 0000
+        S[r] = (byte) (S[r] ^ 128); // 1000 0000
         // 3.
         S = LibraryNative.bash_f(S);
         // 4.
@@ -85,9 +85,9 @@ public class EncryptionAndHashService {
         // 3.
         for (byte[] Xi : XSplit) {
             // 3.1
-            pos = Xi.length * 8;
+            pos = Xi.length;
             // 3.2
-            for (int i = 0; i < pos / 8; ++i) {
+            for (int i = 0; i < pos; ++i) {
                 S[i] = (byte) (S[i] ^ Xi[i]);
             }
             // 3.3
@@ -104,16 +104,16 @@ public class EncryptionAndHashService {
         // 2.
         byte[] Y = new byte[0];
         // 3.
-        while (8 * Y.length + r <= n) {
+        while (Y.length + r <= n / 8) {
             // 3.1
-            Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, r / 8));
+            Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, r));
             // 3.2
             S = LibraryNative.bash_f(S);
         }
         // 4.
-        pos = n - 8 * Y.length;
+        pos = n / 8 - Y.length;
         // 5.
-        Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos / 8));
+        Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos));
         // 6.
         return Y;
     }
@@ -128,13 +128,13 @@ public class EncryptionAndHashService {
         // 4.
         for (byte[] Xi : XSplit) {
             // 4.1
-            pos = Xi.length * 8;
+            pos = Xi.length;
             // 4.2
-            for (int i = 0; i < pos / 8; ++i) {
+            for (int i = 0; i < pos; ++i) {
                 S[i] = (byte) (S[i] ^ Xi[i]);
             }
             // 4.3
-            Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos / 8));
+            Y = ArrayUtils.addAll(Y, ArrayUtils.subarray(S, 0, pos));
             // 4.4
             if (pos == r) {
                 S = LibraryNative.bash_f(S);
@@ -155,15 +155,15 @@ public class EncryptionAndHashService {
         // 4.
         for (byte[] Yi : YSplit) {
             // 4.1
-            pos = Yi.length * 8;
+            pos = Yi.length;
             // 4.2
-            byte[] tempS = ArrayUtils.subarray(S, 0, pos / 8);
-            for (int i = 0; i < pos / 8; ++i) {
+            byte[] tempS = ArrayUtils.subarray(S, 0, pos);
+            for (int i = 0; i < pos; ++i) {
                 tempS[i] = (byte) (tempS[i] ^ Yi[i]);
             }
             X = ArrayUtils.addAll(X, tempS);
             // 4.3
-            System.arraycopy(Yi, 0, S, 0, pos / 8);
+            System.arraycopy(Yi, 0, S, 0, pos);
             // 4.4
             if (pos == r) {
                 S = LibraryNative.bash_f(S);
@@ -250,15 +250,29 @@ public class EncryptionAndHashService {
         return X;
     }
 
+    public byte[] authDecrypt(byte[] A, byte[] K, byte[] Y, byte[] T) {
+        // 1.
+        start(A, K);
+        // 2.1
+        absorb(I);
+        // 2.2
+        byte[] X = decrypt(Y);
+        // 2.3
+        if (!Arrays.equals(T, squeeze(l))) {
+            return null;
+        }
+        return X;
+    }
+
     private static byte[][] split(byte[] bytes, int r) {
-        if (bytes.length * 8 <= r) {
+        if (bytes.length <= r) {
             return new byte[][]{bytes};
         }
         List<byte[]> result = new ArrayList<>();
         int tempPos = 0;
-        while (tempPos * 8 + r < bytes.length * 8) {
-            result.add(ArrayUtils.subarray(bytes, tempPos, tempPos + r / 8));
-            tempPos += r / 8;
+        while (tempPos + r < bytes.length) {
+            result.add(ArrayUtils.subarray(bytes, tempPos, tempPos + r));
+            tempPos += r;
         }
         result.add(ArrayUtils.subarray(bytes, tempPos, bytes.length));
 

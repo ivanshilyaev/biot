@@ -1,8 +1,6 @@
 package by.bsu.biot;
 
-import by.bsu.biot.service.ClientService;
-
-import java.io.IOException;
+import by.bsu.biot.util.BenchmarkUtil;
 
 public class Runner {
 
@@ -10,7 +8,7 @@ public class Runner {
         System.loadLibrary("LibraryNative");
     }
 
-    public static void main(String[] args) throws IOException {
-        // new ClientService().turnOff();
+    public static void main(String[] args) {
+        new BenchmarkUtil().runBenchmark();
     }
 }

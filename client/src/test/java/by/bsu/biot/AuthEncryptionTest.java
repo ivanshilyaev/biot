@@ -21,7 +21,6 @@ public class AuthEncryptionTest {
     // А.6 Аутентифицированное шифрование
     @Test
     public void authEncryptionAndDecryption() {
-        long start = System.nanoTime();
         int l = 256;
         int d = 1;
         byte[] A = reverseAndDecode("B194BAC80A08F53B366D008E584A5DE4");
@@ -50,9 +49,6 @@ public class AuthEncryptionTest {
 
         // расшифрование
         byte[] XDecrypted = service.authDecrypt(A, K, I, encryptionResult.getY(), encryptionResult.getT());
-        long finish = System.nanoTime();
-        System.out.println(0.000001 * (finish - start) + " ms");
-
         assertArrayEquals(X, XDecrypted);
     }
 
