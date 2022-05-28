@@ -17,7 +17,6 @@ public class SwitchController {
 
     @GetMapping
     public String index(HttpSession session) throws IOException {
-        // clientService.init();
         clientService.sendEncryptionKey();
         session.setAttribute("light", true);
 

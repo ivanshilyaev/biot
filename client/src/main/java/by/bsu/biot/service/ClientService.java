@@ -27,6 +27,10 @@ public class ClientService {
     @Value("${biot.encryption.enabled}")
     private boolean encryptionEnabled;
 
+    public void setEncryptionEnabled(boolean encryptionEnabled) {
+        this.encryptionEnabled = encryptionEnabled;
+    }
+
     private String encryptionKey;
 
     private int messageCount;
