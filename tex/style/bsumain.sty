@@ -210,19 +210,39 @@
 
 \addto\captionsrussian{\renewcommand\figurename{Рисунок}}
 
+%Оформление подписи рисунка
+\renewenvironment{figure}{
+	\let\@makecaption\@makefigurecaption
+	\@float{figure}
+}
+{
+	\addtocontents{lof}{ {\vskip 0.2em} }
+	\end@float
+}
+
 \newcommand{\@makefigurecaption}[2]{%
-\vspace{\abovecaptionskip}%
-\sbox{\@tempboxa}{\normalsize #1 --- \normalsize #2}%
-\ifdim \wd\@tempboxa >\hsize {\center\hyphenpenalty=10000\normalsize #1 --- \normalsize #2 \par}%
-\else \global\@minipagefalse \hbox to \hsize
-{\hfil \hyphenpenalty=10000 \normalsize #1 --- \normalsize #2\hfil}%
-\fi \vspace{\belowcaptionskip}}
+	\vspace{\abovecaptionskip}%
+	\sbox{\@tempboxa}{\normalsize #1 --- \normalsize #2}%
+	\ifdim \wd\@tempboxa >\hsize {\center\hyphenpenalty=10000\normalsize #1 --- \normalsize #2 \par}%
+	\else \global\@minipagefalse \hbox to \hsize
+	{\hfil \hyphenpenalty=10000 \normalsize #1 --- \normalsize #2\hfil}%
+	\fi \vspace{\belowcaptionskip}}
+
+%Оформление подписи таблицы
+\renewenvironment{table}{
+	\let\@makecaption\@maketablecaption
+	\@float{table}
+}
+{
+	\addtocontents{lot}{ {\vskip 0.4em} }
+	\end@float
+}
 
 \newlength\abovetablecaptionskip
 \newlength\belowtablecaptionskip
 \newlength\tableparindent
 \setlength\abovetablecaptionskip{10\p@}
-\setlength\belowtablecaptionskip{0\p@}
+\setlength\belowtablecaptionskip{10\p@}
 \setlength\tableparindent{18\p@}
 \newcommand{\@maketablecaption}[2]{
   \vskip\abovetablecaptionskip
