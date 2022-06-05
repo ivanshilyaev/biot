@@ -167,19 +167,19 @@ public class EncryptionAndHashService {
 	private static final int N = 1536;
 	private static final int N_BYTES = 192;
 	
-	// уровень стойкости
+	// resistance level
 	private int l;
 	
-	// ёмкость
+	// capacity
 	private int d;
 	
-	// длина буфера
+	// buffer length
 	private int r;
 	
-	// текущее смещение в буфере
+	// current offset in buffer
 	private int pos;
 	
-	// состояние автомата
+	// machine state
 	private byte[] S;
 	
 	private byte[] I;
@@ -325,11 +325,11 @@ public class EncryptionAndHashService {
 	}
 	
 	/**
-	* @param A - анонс
-	* @param K - ключ
-	* @param I - ассоциированные данные
-	* @param X - сообщение
-	* @return зашифрованное сообщение Y и имитовставка T
+	* @param A
+	* @param K - key
+	* @param I - associated data
+	* @param X - message
+	* @return encrypted message Y and mac T
 	*/
 	public EncryptionResult authEncrypt(byte[] A, byte[] K, byte[] I, byte[] X) {
 		// 1.
@@ -348,12 +348,12 @@ public class EncryptionAndHashService {
 	}
 	
 	/**
-	 * @param A - анонс
-	 * @param K - ключ
-     * @param I - ассоциированные данные
-	 * @param Y - зашифрованное сообщение
-	 * @param T - имитовставка
-	 * @return расшифрованное сообщение X
+	 * @param A
+	 * @param K - key
+     * @param I - associated data
+	 * @param Y - encrypted message
+	 * @param T - mac
+	 * @return decrypted message X
 	 */
 	public byte[] authDecrypt(byte[] A, byte[] K, byte[] I, byte[] Y, byte[] T) {
 		// 1.
