@@ -1,44 +1,45 @@
-# Криптографическая защита данных в IoT системах
+# Cryptographic data protection in IoT systems
 
-## Введение
+The work examines theoretical and practical aspects of cryptographic 
+data protection while using IoT protocols.
 
-[What is Internet of Things?](https://www.avsystem.com/blog/what-is-internet-of-things-explanation/)
+Main work results:
 
-## Основная часть
+- Description of key technologies and technological levels used in 
+the Internet of Things.
 
-[IoT Standards and Protocols](https://www.postscapes.com/internet-of-things-protocols/)
+- Selection of three main protocols: ZigBee, Z-Wave, Wi-Fi — 
+and a comparative analysis of their technical characteristics.
 
-[What technologies are used in IoT](https://www.avsystem.com/blog/iot-technology/)
+- Review of encryption key generation and distribution and data integrity 
+control algorithms used in selected protocols, comparative analysis 
+of these protocols' security.
 
-[IoT Standards and protocols guide](https://www.avsystem.com/blog/iot-protocols-and-standards/)
+- Description of known threats and successful attacks on different 
+protocol versions.
 
-[Comparing Wireless Protocols for IoT Devices](https://glowlabs.co/wireless-protocols/)
+- Construction of threat matrix showing potential vulnerability 
+of IoT protocols to certain types of cryptographic attacks.
 
-[ZigBee Wiki](https://zigbee.wiki/)
+- Implementation of authenticated encryption and hashing algorithms 
+from Belarusian cryptographic standard 
+[СТБ 34.101.77](http://apmi.bsu.by/assets/files/std/bash-spec24.pdf) 
+in two programming languages: Java and C++.
 
-## Официальные источники
+- Firmware development for a smart device in C++ programming language 
+with authenticated encryption, as well as smart light bulb prototype 
+development running on this firmware. Description of motivation for using 
+algorithms from selected standard.
 
-[ZigBee - Connectivity Standards Alliance](https://csa-iot.org/all-solutions/zigbee/)
+- Web-application development for controlling device in Java programming 
+language.
 
-[Z-Wave Alliance](https://z-wavealliance.org/)
+- Detailed review of solution's key technical features, such as
+connection establishment, generation and distribution of encryption 
+keys, message counter implementation.
 
-## Безопасность
-
-[Security Analysis of Zigbee](https://courses.csail.mit.edu/6.857/2017/project/17.pdf)
-
-[IoT Device (Zigbee) Security Study](https://www.hkcert.org/f/blog/264453/3a1c8eed-012c-4b59-9d9e-971001d66c77-DLFE-14602.pdf)
-
-[A Formal Security Analysis of Zigbee (1.0 and 3.0)](https://cps-vo.org/node/66418)
-
-[Security Evaluation of the Z-Wave Wireless Protocol](https://sensepost.com/cms/resources/conferences/2013/bh_zwave/Security%20Evaluation%20of%20Z-Wave_WP.pdf)
-
-## Атаки
-
-[Security attacks to ZigBee technology and their practical realization](https://www.cic.ipn.mx/~pescamilla/MS/papers_2014/DurechandFranekova2014.pdf)
-
-[Z-Shave. Exploiting Z-Wave downgrade attacks](https://www.pentestpartners.com/security-blog/z-shave-exploiting-z-wave-downgrade-attacks/)
-
-![Wireless Access Landscape](images/wireless-access-landscape.png)
+- Evaluation of message exchange speed and demonstration of correct 
+prototype work.
 
 ---
 
